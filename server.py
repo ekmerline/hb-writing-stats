@@ -19,6 +19,25 @@ def login_page():
     """View login."""
     return render_template('login.html', message='Please log in!')
 
+@app.route('/login', methods=['POST'])
+def login():
+    user_name = request.form.get('user_name')
+    password = request.form.get('password')
+    user = crud.get_user_by_user_name(user_name)
+    msg = ''
+    if user is not None:
+        if user.password == password:
+            session['user_id'] = user.user_id
+            session['user_name'] = user.user_name
+            return redirect('/')
+        else:
+            msg = 'Your password was incorrect.'
+            return render_template('login.html', message=msg)
+    else:
+        msg = 'No user with that name found.'
+        return render_template('login.html', message=msg)
+
+
 @app.route('/api/projects')
 def get_projects():
     db_projects = crud.get_projects()

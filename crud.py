@@ -1,4 +1,4 @@
-from model import db, User, Project, Entry, Project_Type, Entry_Type, Quantity_Type, connect_to_db
+from model import db, User, Project, Entry, Project_Type, Entry_Type, connect_to_db
 
 def create_user(user_name, email, password):
 
@@ -14,6 +14,9 @@ def get_users():
 
 def get_user_by_id(user_id):
     return User.query.get(user_id)
+
+def get_user_by_user_name(user_name):
+    return User.query.filter(User.user_name == user_name).first()
 
 def create_project(user, project_type, project_name, project_description, project_create_date):
 
@@ -37,12 +40,12 @@ def get_project_by_id(project_id):
 def get_projects_by_user_id(user_id):
     return Project.query.get(user_id)
 
-def create_entry(project, entry_type, quantity_type, entry_quantity, entry_note, entry_datetime):
+def create_entry(project, entry_type, entry_words, entry_minutes, entry_note, entry_datetime):
 
     entry = Entry(project=project,
                 entry_type=entry_type,
-                quantity_type=quantity_type,
-                entry_quantity=entry_quantity,
+                entry_words=entry_words,
+                entry_minutes=entry_minutes,
                 entry_note=entry_note,
                 entry_datetime=entry_datetime)
 
@@ -87,22 +90,7 @@ def get_entry_type():
 def get_entry_type_by_id(entry_type_id):
     return Entry_Type.query.get(entry_type_id)
 
-def create_quantity_type(quantity_type_name):
-
-    quantity_type = Quantity_Type(quantity_type_name=quantity_type_name)
-
-    db.session.add(quantity_type)
-    db.session.commit()
-
-    return quantity_type
-
-def get_quantity_type():
-    return Quantity_Type.query.all()
-
-def get_quantity_type_by_id(quantity_type_id):
-    return Quantity_Type.query.get(quantity_type_id)
-
-
 if __name__ == '__main__':
     from server import app
     connect_to_db(app)
+    #print(get_user_by_user_name('HatCat'))

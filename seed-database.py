@@ -28,8 +28,6 @@ seed_project_types = ['fiction', 'nonfiction']
 
 seed_entry_types = ['writing', 'editing', 'planning']
 
-seed_quantity_types = ['words', 'minutes', 'pages']
-
 seed_projects = [
     {
         'project_name': 'Super Awesome Novel',
@@ -50,39 +48,44 @@ seed_projects = [
 
 seed_entries = [
     {
-        'entry_quantity': 500,
+        'entry_minutes': 30,
+        'entry_words': 500,
         'entry_note': 'Did some great work',
         'entry_datetime': datetime(2021, 1, 1, 13, 15)
     },
     {
-        'entry_quantity': 100,
+        'entry_minutes': 60,
+        'entry_words': 1000,
         'entry_note': 'Awesome job.',
         'entry_datetime': datetime(2021, 3, 1, 11, 10)
     },
     {
-        'entry_quantity': 50,
+        'entry_minutes': 90,
+        'entry_words': 700,
         'entry_note': 'Not quite what I wanted.',
         'entry_datetime': datetime(2021, 4, 1, 9, 0)
     },
     {
-        'entry_quantity': 200,
+        'entry_minutes': 100,
+        'entry_words': 2000,
         'entry_note': 'Fix later.',
         'entry_datetime': datetime(2021, 2, 12, 14, 45)
     },
     {
-        'entry_quantity': 70,
+        'entry_minutes': 200,
+        'entry_words': 0,
         'entry_note': 'Uhhhh',
         'entry_datetime': datetime(2021, 1, 16, 19, 11)
     },
     {
-        'entry_quantity': 65,
+        'entry_minutes': 60,
+        'entry_words': 0,
         'entry_note': 'Winning!',
         'entry_datetime': datetime(2021, 4, 6, 10, 0)
     }
 ]
 
 users_in_db = []
-quantity_types_in_db = []
 entry_types_in_db = []
 project_types_in_db = []
 
@@ -101,11 +104,6 @@ for project_type in seed_project_types:
 for entry_type in seed_entry_types:
     db_entry_type = crud.create_entry_type(entry_type)
     entry_types_in_db.append(db_entry_type)
-
-for quantity_type in seed_quantity_types:
-    db_quantity_type = crud.create_quantity_type(quantity_type)
-    quantity_types_in_db.append(db_quantity_type)
-
 
 db_project1 = crud.create_project(
     users_in_db[0],
@@ -135,8 +133,8 @@ for i in range(len(seed_entries)):
     crud.create_entry(
         projects_in_db[math.floor(i/2)],
         entry_types_in_db[math.floor(i/2)],
-        quantity_types_in_db[math.floor(i/2)],
-        seed_entries[i]['entry_quantity'],
+        seed_entries[i]['entry_words'],
+        seed_entries[i]['entry_minutes'],
         seed_entries[i]['entry_note'],
         seed_entries[i]['entry_datetime']
     )
