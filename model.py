@@ -52,15 +52,14 @@ class Entry(db.Model):
     entry_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     project_id = db.Column(UUID(as_uuid=True), db.ForeignKey('projects.project_id'))
     entry_type_id = db.Column(UUID(as_uuid=True), db.ForeignKey('entry_types.entry_type_id'))
-    quantity_type_id = db.Column(UUID(as_uuid=True), db.ForeignKey('quantity_types.quantity_type_id'))
 
-    entry_quantity = db.Column(db.Integer, nullable=False)
+    entry_minutes = db.Column(db.Integer, nullable=False)
+    entry_words = db.Column(db.Integer)
     entry_note = db.Column(db.Text)
     entry_datetime = db.Column(db.DateTime, default=db.func.current_timestamp())
 
     project = db.relationship('Project', backref='projects')
     entry_type = db.relationship('Entry_Type', backref='entry_types')
-    quantity_type = db.relationship('Quantity_Type', backref='quantity_types')
 
     def __repr__(self):
         return f'<Entry entry_id={self.entry_id} entry_quantity={self.entry_quantity}>'
@@ -84,17 +83,6 @@ class Entry_Type(db.Model):
 
     def __repr__(self):
         return f'<Entry_Type entry_type_id={self.entry_type_id} entry_type_name={self.entry_type_name}>'
-
-class Quantity_Type(db.Model):
-
-    __tablename__ = 'quantity_types'
-
-    quantity_type_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    quantity_type_name = db.Column(db.String, nullable=False)
-
-    def __repr__(self):
-        return f'<Quantity_Type pquantity_type_id={self.quantity_type_id} quantity_type_name={self.quantity_type_name}>'
-
 
 def connect_to_db(flask_app, db_uri='postgresql:///testwritingstats', echo=True):
     flask_app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
