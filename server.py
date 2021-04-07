@@ -1,9 +1,23 @@
-"""Server for movie ratings app."""
-from flask import Flask, jsonify
+from flask import (Flask, jsonify, render_template, request, flash, session,
+                   redirect)
+from jinja2 import StrictUndefined
 from model import connect_to_db
 import crud
 
 app = Flask(__name__)
+
+app.secret_key = "dev"
+app.jinja_env.undefined = StrictUndefined
+
+@app.route('/')
+def homepage():
+    """View homepage."""
+    return render_template('homepage.html', message='Welcome!')
+
+@app.route('/login')
+def login_page():
+    """View login."""
+    return render_template('login.html', message='Please log in!')
 
 @app.route('/api/projects')
 def get_projects():
