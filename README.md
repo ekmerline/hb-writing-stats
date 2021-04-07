@@ -1,1 +1,1 @@
-# hb-writing-stats
+# writing-stats-app
