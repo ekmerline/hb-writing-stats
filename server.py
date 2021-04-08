@@ -12,12 +12,21 @@ app.jinja_env.undefined = StrictUndefined
 @app.route('/')
 def homepage():
     """View homepage."""
-    return render_template('homepage.html', message='Welcome!')
+    is_logged_in = session.get('is_logged_in', False)
+    if is_logged_in:
+        return render_template('stats-page.html', is_logged_in=is_logged_in)
+    else:
+        return render_template('homepage.html', is_logged_in=is_logged_in )
 
 @app.route('/login')
 def login_page():
     """View login."""
     return render_template('login.html', message='Please log in!')
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return render_template('homepage.html', is_logged_in=False)
 
 @app.route('/login', methods=['POST'])
 def login():

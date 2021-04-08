@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}Writing Stats Home{% endblock %}
+{% block navbar %}
+{% endblock %}
+{% block body %}
+{% if is_logged_in %}
+<div>
+Your stats will be here!
+</div>
+{% else %}
+<div>
+    Please log in to view this page.
+</div>
+{% endif %}
+<script src="static/scripts.js"></script>
+{% endblock %}
