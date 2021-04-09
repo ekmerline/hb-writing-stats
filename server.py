@@ -75,6 +75,30 @@ def add_new_project():
         project_create_date=project_create_date)
     return redirect('/')
 
+@app.route('/new-entry')
+def new_entry_page():
+    if session.get('is_logged_in', False):
+        return render_template('new-entry.html')
+    else:
+        return redirect('/')
+        
+@app.route('/new-entry', methods=['POST'])
+def add_new_entry():
+    project = crud.get_project_by_id(request.form.get('projectSelect'))
+    entry_type = crud.get_entry_type_by_id(request.form.get('entryType'))
+    entry_note = request.form.get('entryNote')
+    entry_words = request.form.get('entryWords')
+    entry_minutes = request.form.get('entryMinutes')
+    entry_datetime = datetime.now()
+
+    crud.create_entry(project=project,
+                entry_type=entry_type,
+                entry_words=entry_words,
+                entry_minutes=entry_minutes,
+                entry_note=entry_note,
+                entry_datetime=entry_datetime)
+    return redirect('/')
+
 @app.route('/api/projects')
 def get_projects():
     db_projects = crud.get_projects()
