@@ -147,3 +147,5 @@ def example_data():
             seed_entries[i]['entry_note'],
             seed_entries[i]['entry_datetime']
         )
+
+example_data()
