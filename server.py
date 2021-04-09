@@ -46,6 +46,13 @@ def login():
         msg = 'No user with that name found.'
         return render_template('login.html', message=msg)
 
+@app.route('/new-project')
+def new_project_page():
+    if session.get('is_logged_in', False):
+        project_types = crud.get_project_types()
+        return render_template('new-project.html', project_types=project_types)
+    else:
+        return redirect('/')
 
 @app.route('/api/projects')
 def get_projects():
