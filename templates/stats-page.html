@@ -1,6 +1,11 @@
 {% extends 'base.html' %}
 {% block title %}Writing Stats Home{% endblock %}
 {% block navbar %}
+{% if is_logged_in %}
+<li class="nav-item">
+    <a class="nav-link" href="/new-project">New Project</a>
+</li>
+{% endif %}
 {% endblock %}
 {% block body %}
 {% if is_logged_in %}
