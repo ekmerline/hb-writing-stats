@@ -18,7 +18,7 @@ def homepage():
         projects = crud.get_projects_by_user_id(session['user_id'])
         entries = crud.get_entries_by_user_id(session['user_id'])
         return render_template('stats-page.html', 
-            is_logged_in=is_logged_in, 
+            is_logged_in=session.get('is_logged_in', False), 
             projects=projects,
             entries=entries)
     else:
@@ -27,7 +27,7 @@ def homepage():
 @app.route('/login')
 def login_page():
     """View login."""
-    return render_template('login.html', message='Please log in!')
+    return render_template('login.html', message='Please log in!', is_logged_in = session.get('is_logged_in', False))
 
 @app.route('/logout')
 def logout():
@@ -39,18 +39,20 @@ def login():
     user_name = request.form.get('user_name')
     password = request.form.get('password')
     user = crud.get_user_by_user_name(user_name)
+    print(user)
     msg = ''
     if user is not None:
         if user.password == password:
+            session['is_logged_in'] = True
             session['user_id'] = user.user_id
             session['user_name'] = user.user_name
             return redirect('/')
         else:
             msg = 'Your password was incorrect.'
-            return render_template('login.html', message=msg)
+            return render_template('login.html', message=msg, is_logged_in = session.get('is_logged_in', False))
     else:
         msg = 'No user with that name found.'
-        return render_template('login.html', message=msg)
+        return render_template('login.html', message=msg, is_logged_in = session.get('is_logged_in', False))
 
 @app.route('/new-project')
 def new_project_page():
@@ -81,7 +83,7 @@ def new_entry_page():
         return render_template('new-entry.html')
     else:
         return redirect('/')
-        
+
 @app.route('/new-entry', methods=['POST'])
 def add_new_entry():
     project = crud.get_project_by_id(request.form.get('projectSelect'))

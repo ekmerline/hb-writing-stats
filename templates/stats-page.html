@@ -22,7 +22,7 @@
 {% if is_logged_in %}
 <div>
     {% for entry in entries %}
-    <div>{{ entry.notes }}</div>
+    <div>{{ entry.entry_note }}</div>
     {% endfor %}
 </div>
 {% else %}
