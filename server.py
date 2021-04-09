@@ -3,6 +3,7 @@ from flask import (Flask, jsonify, render_template, request, flash, session,
 from jinja2 import StrictUndefined
 from model import connect_to_db
 import crud
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -14,7 +15,12 @@ def homepage():
     """View homepage."""
     is_logged_in = session.get('is_logged_in', False)
     if is_logged_in:
-        return render_template('stats-page.html', is_logged_in=is_logged_in)
+        projects = crud.get_projects_by_user_id(session['user_id'])
+        entries = crud.get_entries_by_user_id(session['user_id'])
+        return render_template('stats-page.html', 
+            is_logged_in=is_logged_in, 
+            projects=projects,
+            entries=entries)
     else:
         return render_template('homepage.html', is_logged_in=is_logged_in )
 
@@ -53,6 +59,21 @@ def new_project_page():
         return render_template('new-project.html', project_types=project_types)
     else:
         return redirect('/')
+
+@app.route('/new-project', methods=['POST'])
+def add_new_project():
+    user = crud.get_user_by_id(session['user_id'])
+    project_type = crud.get_project_type_by_id(request.form.get('projectType'))
+    project_name = request.form.get('projectName')
+    project_description = request.form.get('projectDescription')
+    project_create_date = datetime.now()
+
+    crud.create_project(user=user, 
+        project_type=project_type, 
+        project_name=project_name, 
+        project_description=project_description, 
+        project_create_date=project_create_date)
+    return redirect('/')
 
 @app.route('/api/projects')
 def get_projects():

@@ -38,7 +38,7 @@ def get_project_by_id(project_id):
     return Project.query.get(project_id)
 
 def get_projects_by_user_id(user_id):
-    return Project.query.get(user_id)
+    return Project.query.filter(Project.user_id == user_id).all()
 
 def create_entry(project, entry_type, entry_words, entry_minutes, entry_note, entry_datetime):
 
@@ -60,6 +60,9 @@ def get_entries():
 def get_entry_by_id(entry_id):
     return Entry.query.get(entry_id)
 
+def get_entries_by_user_id(user_id):
+    return Entry.query.filter(Entry.project.has(user_id = user_id)).all()
+    
 def create_project_type(project_type_name):
 
     project_type = Project_Type(project_type_name=project_type_name)
