@@ -64,6 +64,19 @@ class Entry(db.Model):
     def __repr__(self):
         return f'<Entry entry_id={self.entry_id} entry_quantity={self.entry_quantity}>'
 
+    def to_dict(self):
+        return {
+            'entry_id': self.entry_id,
+            'project_id': self.project_id,
+            'entry_type_id': self.entry_type_id,
+            'entry_type_name': self.entry_type.entry_type_name,
+            'project_name': self.project.project_name,
+            'entry_minutes': self.entry_minutes,
+            'entry_words': self.entry_words,
+            'entry_note': self.entry_note,
+            'entry_datetime': self.entry_datetime
+        }
+
 class Project_Type(db.Model):
 
     __tablename__ = 'project_types'

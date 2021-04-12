@@ -16,11 +16,9 @@ def homepage():
     is_logged_in = session.get('is_logged_in', False)
     if is_logged_in:
         projects = crud.get_projects_by_user_id(session['user_id'])
-        entries = crud.get_entries_by_user_id(session['user_id'])
         return render_template('stats-page.html', 
             is_logged_in=session.get('is_logged_in', False), 
-            projects=projects,
-            entries=entries)
+            projects=projects)
     else:
         return render_template('homepage.html', is_logged_in=is_logged_in )
 
@@ -101,15 +99,27 @@ def add_new_entry():
                 entry_datetime=entry_datetime)
     return redirect('/')
 
-@app.route('/api/projects')
-def get_projects():
-    db_projects = crud.get_projects()
-    projects_list = []
-    for project in db_projects:
-        projects_list.append(project.to_dict())
-    return jsonify(projects_list)
+@app.route('/api/entries/<project_id>', methods=['POST'])
+def get_entries_filtered_by_project(project_id):
+    if project_id == 'all':
+        db_entries = crud.get_entries_by_user_id(session['user_id'])
+    else:
+        db_entries = crud.get_entries_by_project_id(project_id)
+    entries_list = []
+    for entry in db_entries:
+        entries_list.append(entry.to_dict())
+    return jsonify(entries_list)
 
-@app.route('/api/projects/<user_id>')
+@app.route('/api/entries/<user_id>', methods=['POST'])
+def get_entries_filtered_by_user(user_id):
+    db_entries = crud.get_entries_by_user_id(user_id)
+    entries_list = []
+    for entry in db_entries:
+        entries_list.append(entry.to_dict())
+    return jsonify(entries_list)
+
+
+@app.route('/api/projects/<user_id>', methods=['POST'])
 def get_projects_by_user(user_id):
     db_projects = crud.get_projects_by_user_id(user_id)
     projects_list = []
