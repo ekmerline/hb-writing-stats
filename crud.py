@@ -62,6 +62,9 @@ def get_entry_by_id(entry_id):
 
 def get_entries_by_user_id(user_id):
     return Entry.query.filter(Entry.project.has(user_id = user_id)).all()
+
+def get_entries_by_project_id(project_id):
+    return Entry.query.filter(Entry.project_id == project_id).all()
     
 def create_project_type(project_type_name):
 
