@@ -23,8 +23,8 @@ class Project(db.Model):
     __tablename__ = 'projects'
 
     project_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.user_id'))
-    project_type_id = db.Column(UUID(as_uuid=True), db.ForeignKey('project_types.project_type_id'))
+    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.user_id'), nullable=False)
+    project_type_id = db.Column(UUID(as_uuid=True), db.ForeignKey('project_types.project_type_id'), nullable=False)
     project_name = db.Column(db.String, nullable=False)
     project_description = db.Column(db.Text)
     project_create_date = db.Column(db.DateTime, default=db.func.current_timestamp())
@@ -50,8 +50,8 @@ class Entry(db.Model):
     __tablename__ = 'entries'
 
     entry_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    project_id = db.Column(UUID(as_uuid=True), db.ForeignKey('projects.project_id'))
-    entry_type_id = db.Column(UUID(as_uuid=True), db.ForeignKey('entry_types.entry_type_id'))
+    project_id = db.Column(UUID(as_uuid=True), db.ForeignKey('projects.project_id'), nullable=False)
+    entry_type_id = db.Column(UUID(as_uuid=True), db.ForeignKey('entry_types.entry_type_id'), nullable=False)
 
     entry_minutes = db.Column(db.Integer, nullable=False)
     entry_words = db.Column(db.Integer)
@@ -87,6 +87,12 @@ class Project_Type(db.Model):
     def __repr__(self):
         return f'<Project_Type project_type_id={self.project_type_id} project_type_name={self.project_type_name}>'
 
+    def to_dict(self):
+        return {
+            'project_type_id': self.project_type_id,
+            'project_type_name': self.project_type_name
+        }
+
 class Entry_Type(db.Model):
 
     __tablename__ = 'entry_types'
@@ -96,7 +102,13 @@ class Entry_Type(db.Model):
 
     def __repr__(self):
         return f'<Entry_Type entry_type_id={self.entry_type_id} entry_type_name={self.entry_type_name}>'
-
+    
+    def to_dict(self):
+        return {
+            'entry_type_id': self.project_type_id,
+            'entry_type_name': self.project_type_name
+        }
+        
 def connect_to_db(flask_app, db_uri='postgresql:///testwritingstats', echo=True):
     flask_app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
     flask_app.config['SQLALCHEMY_ECHO'] = echo

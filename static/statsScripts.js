@@ -1,10 +1,10 @@
-const updateStatsDisplay = response => {
+const updateStatsDisplay = entries => {
     const statsDiv = document.querySelector('.stats-data');
     while (statsDiv.firstChild) {
         statsDiv.removeChild(statsDiv.lastChild);
     }
     const fragment = new DocumentFragment();
-    for(const entry of response){
+    for(const entry of entries){
         const entryDiv = document.createElement('div');
         entryDiv.appendChild(document.createTextNode(entry['entry_note']));
         fragment.appendChild(entryDiv);
@@ -12,11 +12,20 @@ const updateStatsDisplay = response => {
     statsDiv.appendChild(fragment);
 };
 
-document.querySelector('#currentProject').addEventListener('change', evt => {
-    const projectId = evt.target.value;
-    $.post(`/api/entries/${projectId}`, updateStatsDisplay);
-});
+const getInitialEntryData = response => {
+	const entries = response;
+	updateStatsDisplay(entries);
+	
+	document.querySelector('#currentProject').addEventListener('change', evt => {
+        
+		const projectId = evt.target.value;
+		if(projectId === 'all'){
+			updateStatsDisplay(entries);
+		}else {
+			const filteredEntries = entries.filter(entry => entry['project_id'] === projectId);
+			updateStatsDisplay(filteredEntries);
+		}
+	});
+};
 
-$.post(`/api/entries/all`, updateStatsDisplay);
-
-
+$.get(`/api/entries`, getInitialEntryData);
