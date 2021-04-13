@@ -22,10 +22,16 @@
 {% if is_logged_in %}
 <div class="stats-data">
 </div>
+
 {% else %}
 <div>
     Please log in to view this page.
 </div>
 {% endif %}
+
+{% endblock %}
+{% block scripts %}
+{% if is_logged_in %}
 <script src="static/statsScripts.js"></script>
+{% endif %}
 {% endblock %}
