@@ -52,6 +52,8 @@ def new_entry_page():
 
 ###  ENDPOINTS ####
 
+### USER ###
+
 @app.route('/api/login', methods=['POST'])
 def login_user():
     """Logs user in."""
@@ -64,17 +66,53 @@ def login_user():
             session['is_logged_in'] = True
             session['user_id'] = user.user_id
             session['user_name'] = user.user_name
-            return jsonify({'message': 'Success'})
+            return jsonify({'message': 'Success', 'user_id': f'{user.user_id}'})
         else:
             return jsonify({'message': 'Your password was incorrect.'})
     else:
         return jsonify({'message': 'No user was found with that name.'})
 
-@app.route('/api/project', methods=['POST'])
-def create_project():
+@app.route('/api/users', methods=['POST'])
+def register_user():
+    """Registers a new user."""
+    user_data = json.loads(request.data)
+    user = crud.create_user(user_data['user_name'], user_data['email'], user_data['password'])
+    new_user = crud.get_user_by_id(user.user_id)
+    if new_user:
+        return jsonify({'message': 'Success', 'data': f'${new_user.to_dict()}'})
+    else:
+        return jsonify({'message': 'Error'})
+
+@app.route('/api/user/<user_id>', methods=['PUT'])
+def update_user(user_id):
+    """Updates user."""
+    new_data = json.loads(request.data)
+    updated_user = crud.update_user(user_id, new_data)
+    return jsonify(updated_user.to_dict())
+
+@app.route('/api/user/<user_id>', methods=['DELETE'])
+def delete_user(user_id):
+    """Deletes user."""
+    return jsonify(crud.delete_user(user_id))
+
+
+### PROJECT ###
+
+@app.route('/api/projects')
+def get_projects_by_user():
+    """Gets list of projects for the logged in user."""
+    db_projects = crud.get_projects_by_user_id(session['user_id'])
+    projects_list = []
+    for project in db_projects:
+        projects_list.append(project.to_dict())
+    return jsonify(projects_list)
+
+@app.route('/api/project/<user_id>', methods=['POST'])
+def add_project(user_id):
     """Creates a new project."""
     project_data = json.loads(request.data)
-    user = crud.get_user_by_id(session['user_id'])
+    #user = crud.get_user_by_id(session['user_id'])
+    user = crud.get_user_by_id(user_id)
     project_type = crud.get_project_type_by_id(project_data['project_type_id'])
     if user and project_type:
         crud.create_project(user=user, 
@@ -90,6 +128,20 @@ def create_project():
         else:
             return jsonify({'message': 'User not found.'})
     return jsonify({'message': 'Success!'})
+
+@app.route('/api/project/<project_id>', methods=['PUT'])
+def update_project(project_id):
+    """Updates project."""
+    new_data = json.loads(request.data)
+    updated_project = crud.update_project(project_id, new_data)
+    return jsonify(updated_project.to_dict())
+
+@app.route('/api/project/<project_id>', methods=['DELETE'])
+def delete_project(project_id):
+    """Deletes project."""
+    return jsonify(crud.delete_project(project_id))
+
+### ENTRY ###
 
 @app.route('/api/entry', methods=['POST'])
 def create_entry():
@@ -123,15 +175,7 @@ def get_entries_by_user():
     return jsonify(entries_list)
 
 
-@app.route('/api/projects')
-def get_projects_by_user():
-    """Gets list of projects for the logged in user."""
-    db_projects = crud.get_projects_by_user_id(session['user_id'])
-    projects_list = []
-    for project in db_projects:
-        projects_list.append(project.to_dict())
-    return jsonify(projects_list)
-
+### ENTRY TYPE ###
 @app.route('/api/entry-types')
 def get_entry_types():
     """Gets list of entry types."""
@@ -141,6 +185,8 @@ def get_entry_types():
         entry_types_list.append(entry_type.to_dict())
     return jsonify(entry_types_list)
 
+
+### PROJECT TYPE ###
 @app.route('/api/project-types')
 def get_projects_types():
     """Gets list of project types."""
@@ -150,6 +196,8 @@ def get_projects_types():
         project_types_list.append(project_type.to_dict())
     return jsonify(project_types_list)
 
+
 if __name__ == '__main__':
     connect_to_db(app)
     app.run(host='0.0.0.0', debug=True)
+    session.clear()
