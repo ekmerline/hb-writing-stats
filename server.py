@@ -144,7 +144,7 @@ def delete_project(project_id):
 ### ENTRY ###
 
 @app.route('/api/entry', methods=['POST'])
-def create_entry():
+def add_entry():
     """Creates a new entry."""
     entry_data = json.loads(request.data)
     project = crud.get_project_by_id(entry_data['project_id'])
@@ -165,15 +165,26 @@ def create_entry():
             return jsonify({'message': 'Project not found.'})
     return jsonify({'message': 'Success!'})
 
-@app.route('/api/entries')
-def get_entries_by_user():
+@app.route('/api/entries/<user_id>')
+def get_entries_by_user(user_id):
     """Gets list of entries for the logged in user."""
-    db_entries = crud.get_entries_by_user_id(session['user_id'])
+    db_entries = crud.get_entries_by_user_id(user_id)
     entries_list = []
     for entry in db_entries:
         entries_list.append(entry.to_dict())
     return jsonify(entries_list)
 
+@app.route('/api/entry/<entry_id>', methods=['PUT'])
+def update_entry(entry_id):
+    """Updates entry."""
+    new_data = json.loads(request.data)
+    updated_entry = crud.update_entry(entry_id, new_data)
+    return jsonify(updated_entry.to_dict())
+
+@app.route('/api/entry/<entry_id>', methods=['DELETE'])
+def delete_entry(entry_id):
+    """Deletes entry."""
+    crud.delete_entry(entry_id)
 
 ### ENTRY TYPE ###
 @app.route('/api/entry-types')
@@ -185,6 +196,24 @@ def get_entry_types():
         entry_types_list.append(entry_type.to_dict())
     return jsonify(entry_types_list)
 
+@app.route('/api/entry-type', methods=['POST'])
+def add_entry_type():
+    """Add a new entry type."""
+    entry_type_data = json.loads(request.data)
+    crud.create_entry_type(entry_type_data['entry_type_name'])
+    return jsonify({'message': 'Success!'})
+
+@app.route('/api/entry_type/<entry_type_id>', methods=['PUT'])
+def update_entry_type(entry_type_id):
+    """Updates entry_type."""
+    new_data = json.loads(request.data)
+    updated_entry_type = crud.update_entry_type(entry_type_id, new_data)
+    return jsonify(updated_entry_type.to_dict())
+
+@app.route('/api/entry_type/<entry_type_id>', methods=['DELETE'])
+def delete_entry_type(entry_type_id):
+    """Deletes entry_type."""
+    return jsonify(crud.delete_entry_type(entry_type_id))
 
 ### PROJECT TYPE ###
 @app.route('/api/project-types')
@@ -196,6 +225,24 @@ def get_projects_types():
         project_types_list.append(project_type.to_dict())
     return jsonify(project_types_list)
 
+@app.route('/api/project-type', methods=['POST'])
+def add_project_type():
+    """Add a new project type."""
+    project_type_data = json.loads(request.data)
+    crud.create_project_type(project_type_data['project_type_name'])
+    return jsonify({'message': 'Success!'})
+
+@app.route('/api/project_type/<project_type_id>', methods=['PUT'])
+def update_project_type(project_type_id):
+    """Updates project_type."""
+    new_data = json.loads(request.data)
+    updated_project_type = crud.update_project_type(project_type_id, new_data)
+    return jsonify(updated_project_type.to_dict())
+
+@app.route('/api/project_type/<project_type_id>', methods=['DELETE'])
+def delete_project_type(project_type_id):
+    """Deletes project_type."""
+    return jsonify(crud.delete_project_type(project_type_id))
 
 if __name__ == '__main__':
     connect_to_db(app)

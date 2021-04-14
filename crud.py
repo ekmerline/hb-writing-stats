@@ -1,4 +1,8 @@
 from model import db, User, Project, Entry, Project_Type, Entry_Type, connect_to_db
+import logging
+from sqlalchemy.exc import SQLAlchemyError
+
+logger = logging.getLogger(__name__)
 
 ### USER ###
 def create_user(user_name, email, password):
@@ -32,20 +36,7 @@ def delete_user(user_id):
         db.session.delete(project)
     db.session.delete(user)
     db.session.commit()
-    user = User.query.get(user_id)
-    projects = get_projects_by_user_id(user_id)
-    entries = get_entries_by_user_id(user_id)
-    msg = 'Not deleted:'
-    if user != None:
-        msg += ' user'
-    if projects != None:
-        msg+= ' projects'
-    if entries != None:
-        msg += ' entries'
-    if msg == 'Not deleted:':
-        return {'status': 'Success'}
-    else:
-        return {'status': 'Error', 'message': msg}
+    return User.query.get(user_id)
     
 
 ### PROJECT ###
@@ -82,15 +73,8 @@ def delete_project(project_id):
         db.session.delete(entry)
     db.session.delete(project)
     db.session.commit()
-    project = Project.query.get(project_id)
-    project_entries = get_entries_by_project_id(project_id)
-    if project_entries == None and project == None:
-        return {'status': 'Success'}
-    else:
-        if project_entries != None:
-            return {'status': 'Error', 'message': 'Associated project entries not deleted.'}
-        else:
-            return {'status': 'Error', 'message': 'Project not deleted.'}
+    return Project.query.get(project_id)
+
 
 ### ENTRY ###
 
@@ -107,18 +91,28 @@ def get_entries_by_project_id(project_id):
     return Entry.query.filter(Entry.project_id == project_id).all()
 
 def create_entry(project, entry_type, entry_words, entry_minutes, entry_note, entry_datetime):
-
     entry = Entry(project=project,
                 entry_type=entry_type,
                 entry_words=entry_words,
                 entry_minutes=entry_minutes,
                 entry_note=entry_note,
                 entry_datetime=entry_datetime)
-
     db.session.add(entry)
     db.session.commit()
-
     return entry
+
+
+def update_entry(entry_id, new_data):
+    Entry.query.filter_by(entry_id=entry_id).update(new_data)
+    db.session.commit()
+    return Entry.query.get(entry_id)
+
+def delete_entry(entry_id):
+    entry = Entry.query.get(entry_id)
+    db.session.delete(entry)
+    db.session.commit()
+
+
 
 ### PROJECT TYPE ###
 def create_project_type(project_type_name):
@@ -135,6 +129,16 @@ def get_project_types():
 
 def get_project_type_by_id(project_type_id):
     return Project_Type.query.get(project_type_id)
+
+def update_project_type(project_type_id, new_data):
+    Project_Type.query.filter_by(project_type_id=project_type_id).update(new_data)
+    db.session.commit()
+    return Project_Type.query.get(project_type_id)
+
+def delete_project_type(project_type_id):
+    project_type = Project_Type.query.get(project_type_id)
+    print(db.session.delete(project_type))
+    db.session.commit()
 
 
 ### ENTRY TYPE ###
@@ -153,6 +157,16 @@ def get_entry_types():
 def get_entry_type_by_id(entry_type_id):
     return Entry_Type.query.get(entry_type_id)
 
+def update_entry_type(entry_type_id, new_data):
+    Entry_Type.query.filter_by(entry_type_id=entry_type_id).update(new_data)
+    db.session.commit()
+    return Entry_Type.query.get(entry_type_id)
+
+def delete_entry_type(entry_type_id):
+    entry_type = Entry_Type.query.get(entry_type_id)
+    db.session.delete(entry_type)
+    db.session.commit()
+    return Entry_Type.query.get(entry_type_id)
 
 if __name__ == '__main__':
     from server import app
