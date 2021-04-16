@@ -20,7 +20,24 @@
 {% endblock %}
 {% block body %}
 {% if is_logged_in %}
-<div class="stats-data">
+<table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Project Name</th>
+        <th scope="col">Entry Type</th>
+        <th scope="col">Minutes</th>
+        <th scope="col">Words</th>
+        <th scope="col">Date</th>
+      </tr>
+    </thead>
+    <tbody class="stats-data">
+
+    </tbody>
+  </table>
+<div class="stats-charts">
+    <div id="timeChart">
+        <canvas id="myChart"></canvas>
+    </div>
 </div>
 
 {% else %}

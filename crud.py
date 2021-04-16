@@ -85,22 +85,29 @@ def get_entry_by_id(entry_id):
     return Entry.query.get(entry_id)
 
 def get_entries_by_user_id(user_id):
-    return Entry.query.filter(Entry.project.has(user_id = user_id)).all()
+    return Entry.query.filter(Entry.project.has(user_id = user_id)).order_by(Entry.entry_datetime.desc()).all()
 
 def get_entries_by_project_id(project_id):
     return Entry.query.filter(Entry.project_id == project_id).all()
 
-def create_entry(project, entry_type, entry_words, entry_minutes, entry_note, entry_datetime):
-    entry = Entry(project=project,
-                entry_type=entry_type,
-                entry_words=entry_words,
-                entry_minutes=entry_minutes,
-                entry_note=entry_note,
-                entry_datetime=entry_datetime)
-    db.session.add(entry)
-    db.session.commit()
-    return entry
+def create_entry(project_id, entry_type_id, entry_words, entry_minutes, entry_note, entry_datetime):
 
+    try:
+        project = get_project_by_id(project_id)
+        entry_type = get_entry_type_by_id(entry_type_id)
+        entry = Entry(project=project,
+                    entry_type=entry_type,
+                    entry_words=entry_words,
+                    entry_minutes=entry_minutes,
+                    entry_note=entry_note,
+                    entry_datetime=entry_datetime)
+        db.session.add(entry)
+        db.session.commit()
+        return {"message": "success", "data": entry.to_dict()}
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        logger.error(f"Create failed. Exception: {e}")
+        return {"message": "error", "data": {"exception": str(e)}}
 
 def update_entry(entry_id, new_data):
     Entry.query.filter_by(entry_id=entry_id).update(new_data)
@@ -108,10 +115,15 @@ def update_entry(entry_id, new_data):
     return Entry.query.get(entry_id)
 
 def delete_entry(entry_id):
-    entry = Entry.query.get(entry_id)
-    db.session.delete(entry)
-    db.session.commit()
-
+    try:
+        entry = Entry.query.get(entry_id)
+        db.session.delete(entry)
+        db.session.commit()
+        return {"message": "success", "data": entry.to_dict()}
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        logger.error(f'Delete failed. Exception: {e}')
+        return {"message": "error", "data": entry.to_dict()}
 
 
 ### PROJECT TYPE ###

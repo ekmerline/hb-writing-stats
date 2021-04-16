@@ -1,4 +1,4 @@
-from flask import (Flask, jsonify, render_template, request, flash, session,
+from flask import (Flask, jsonify, render_template, request, session,
                    redirect)
 from jinja2 import StrictUndefined
 from model import connect_to_db
@@ -21,7 +21,7 @@ def homepage():
             is_logged_in=session.get('is_logged_in', False), 
             projects=projects)
     else:
-        return render_template('homepage.html', is_logged_in=is_logged_in )
+        return render_template('homepage.html')
 
 @app.route('/login')
 def login_page():
@@ -107,12 +107,12 @@ def get_projects_by_user():
         projects_list.append(project.to_dict())
     return jsonify(projects_list)
 
-@app.route('/api/project/<user_id>', methods=['POST'])
-def add_project(user_id):
+@app.route('/api/project', methods=['POST'])
+def add_project():
     """Creates a new project."""
     project_data = json.loads(request.data)
-    #user = crud.get_user_by_id(session['user_id'])
-    user = crud.get_user_by_id(user_id)
+    user = crud.get_user_by_id(session['user_id'])
+    #user = crud.get_user_by_id(user_id)
     project_type = crud.get_project_type_by_id(project_data['project_type_id'])
     if user and project_type:
         crud.create_project(user=user, 
@@ -146,29 +146,19 @@ def delete_project(project_id):
 @app.route('/api/entry', methods=['POST'])
 def add_entry():
     """Creates a new entry."""
-    entry_data = json.loads(request.data)
-    project = crud.get_project_by_id(entry_data['project_id'])
-    entry_type = crud.get_entry_type_by_id(entry_data['entry_type_id'])
-    if project and entry_type:
-        crud.create_entry(project=project,
-                    entry_type=entry_type,
+    entry_data = request.get_json()
+    new_entry = crud.create_entry(project_id=entry_data['project_id'],
+                    entry_type_id=entry_data['entry_type_id'],
                     entry_words=entry_data['entry_words'],
                     entry_minutes=entry_data['entry_minutes'],
                     entry_note=entry_data['entry_note'],
                     entry_datetime=datetime.now())
-    else:
-        if not project and not entry_type:
-            return jsonify({'message': 'Project and entry_type not found.'})
-        elif not entry_type:
-            return jsonify({'message': 'Entry_type not found.'})
-        else:
-            return jsonify({'message': 'Project not found.'})
-    return jsonify({'message': 'Success!'})
+    return new_entry
 
-@app.route('/api/entries/<user_id>')
-def get_entries_by_user(user_id):
+@app.route('/api/entries')
+def get_entries_by_user():
     """Gets list of entries for the logged in user."""
-    db_entries = crud.get_entries_by_user_id(user_id)
+    db_entries = crud.get_entries_by_user_id(session['user_id'])
     entries_list = []
     for entry in db_entries:
         entries_list.append(entry.to_dict())
