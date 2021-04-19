@@ -18,7 +18,17 @@ def index():
 
 @app.route('/login')
 def login_redirect():
-    """View index."""
+    """Redirect login"""
+    return redirect('/')
+
+@app.route('/new-entry')
+def new_entry_redirect():
+    """Redirect new entry"""
+    return redirect('/')
+
+@app.route('/new-project')
+def new_project_redirect():
+    """Redirect new project"""
     return redirect('/')
 ###  ENDPOINTS ####
 
@@ -33,10 +43,9 @@ def login_user():
     user = crud.get_user_by_user_name(user_name)
     if user is not None:
         if user.password == password:
-            session['is_logged_in'] = True
-            session['user_id'] = user.user_id
-            session['user_name'] = user.user_name
-            return jsonify({'message': 'Success', 'user_id': f'{user.user_id}'})
+            #session['user_id'] = user.user_id
+            #session['user_name'] = user.user_name
+            return jsonify({'message': 'Success', 'user_id': f'{user.user_id}', 'user_name': f'{user.user_name}'})
         else:
             return jsonify({'message': 'Your password was incorrect.'})
     else:
