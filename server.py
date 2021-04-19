@@ -12,44 +12,14 @@ app.secret_key = "dev"
 app.jinja_env.undefined = StrictUndefined
 
 @app.route('/')
-def homepage():
-    """View homepage."""
-    is_logged_in = session.get('is_logged_in', False)
-    if is_logged_in:
-        projects = crud.get_projects_by_user_id(session['user_id'])
-        return render_template('stats-page.html', 
-            is_logged_in=session.get('is_logged_in', False), 
-            projects=projects)
-    else:
-        return render_template('homepage.html')
+def index():
+    """View index."""
+    return render_template('index.html')
 
 @app.route('/login')
-def login_page():
-    """View login."""
-    return render_template('login.html', message='Please log in!', is_logged_in = session.get('is_logged_in', False))
-
-@app.route('/logout')
-def logout():
-    session.clear()
-    return render_template('homepage.html', is_logged_in=False)
-
-@app.route('/new-project')
-def new_project_page():
-    if session.get('is_logged_in', False):
-        project_types = crud.get_project_types()
-        return render_template('new-project.html', is_logged_in = session.get('is_logged_in', False), project_types=project_types, message='Enter a new project.')
-    else:
-        return redirect('/')
-
-@app.route('/new-entry')
-def new_entry_page():
-    if session.get('is_logged_in', False):
-        entry_types = crud.get_entry_types()
-        projects = crud.get_projects_by_user_id(session['user_id'])
-        return render_template('new-entry.html', is_logged_in = session.get('is_logged_in', False), entry_types=entry_types, projects=projects, message='Enter a new entry.')
-    else:
-        return redirect('/')
-
+def login_redirect():
+    """View index."""
+    return redirect('/')
 ###  ENDPOINTS ####
 
 ### USER ###
