@@ -5,9 +5,60 @@ const { useState } = React;
 const App = () => {
 
     const [userID, setUserID ] = useState(null);
+    const [projectsData, setProjectsData] = useState([]);
+    const [projectTypes, setProjectTypes] = useState([]);
+    const [entryTypes, setEntryTypes] = useState([]);
+    const [entriesData, setEntriesData] = useState([]);
 
+    const loadData = () => {
+        fetch('http://localhost:5000/api/projects', {
+            method: 'GET'
+            })
+            .then(response => response.json())
+            .then(data => {
+                setProjectsData(data);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        fetch('http://localhost:5000/api/entries', {
+            method: 'GET'
+            })
+            .then(response => response.json())
+            .then(data => {
+                setEntriesData(data);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        fetch('http://localhost:5000/api/entry-types', {
+            method: 'GET'
+            })
+            .then(response => response.json())
+            .then(data => {
+                setEntryTypes(data);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        fetch('http://localhost:5000/api/project-types', {
+            method: 'GET'
+            })
+            .then(response => response.json())
+            .then(data => {
+                setProjectTypes(data);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+    }
     const verifyUser = () => {
         setUserID(sessionStorage.getItem('user_id'));
+        loadData();
+    }
+
+    const updateProjects = newProject => {
+        setProjectsData([...projectsData, newProject]);
     }
     return (
         <BrowserRouter>
@@ -48,7 +99,11 @@ const App = () => {
                         <Route path="/new-project">
                             <React.Fragment>
                                 <Box>
-                                    The new project page!
+                                    <CreateProject
+                                    projectTypes={projectTypes}
+                                    updateProjects={updateProjects}
+                                    >
+                                    </CreateProject>
                                 </Box>
                             </React.Fragment>
                         </Route>

@@ -43,7 +43,7 @@ def login_user():
     user = crud.get_user_by_user_name(user_name)
     if user is not None:
         if user.password == password:
-            #session['user_id'] = user.user_id
+            session['user_id'] = user.user_id
             #session['user_name'] = user.user_name
             return jsonify({'message': 'Success', 'user_id': f'{user.user_id}', 'user_name': f'{user.user_name}'})
         else:

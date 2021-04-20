@@ -105,8 +105,8 @@ class Entry_Type(db.Model):
     
     def to_dict(self):
         return {
-            'entry_type_id': self.project_type_id,
-            'entry_type_name': self.project_type_name
+            'entry_type_id': self.entry_type_id,
+            'entry_type_name': self.entry_type_name
         }
         
 def connect_to_db(flask_app, db_uri='postgresql:///testwritingstats', echo=True):
