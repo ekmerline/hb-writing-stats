@@ -60,6 +60,11 @@ const App = () => {
     const updateProjects = newProject => {
         setProjectsData([...projectsData, newProject]);
     }
+
+    const updateEntriesData = newEntry => {
+        setEntriesData([...entriesData, newEntry]);
+    }
+
     return (
         <BrowserRouter>
             <Box className="App">
@@ -83,7 +88,16 @@ const App = () => {
                         <Route exact path="/">
                             <React.Fragment>
                                 <Box>
+                                    {userID ? (
+                                        <StatsDisplay
+                                        entriesData={entriesData}
+                                        >
+                                        </StatsDisplay>
+                                    ) : (
+                                    <React.Fragment>
                                     The main page!
+                                    </React.Fragment>
+                                    )}
                                 </Box>
                             </React.Fragment>
                         </Route>
@@ -91,7 +105,6 @@ const App = () => {
                             <React.Fragment>
                                 <Box>
                                     <Login verifyUser={verifyUser}>
-
                                     </Login>
                                 </Box>
                             </React.Fragment>
@@ -110,7 +123,11 @@ const App = () => {
                         <Route path="/new-entry">
                             <React.Fragment>
                                 <Box>
-                                    The new entry page!
+                                    <CreateEntry
+                                    entryTypes={entryTypes}
+                                    updateEntriesData={updateEntriesData}
+                                    >
+                                    </CreateEntry>
                                 </Box>
                             </React.Fragment>
                         </Route>
