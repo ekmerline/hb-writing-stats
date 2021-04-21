@@ -46,46 +46,56 @@ const CreateProject = ({projectTypes, updateProjects}) => {
 
     return (
         <form>
-            <TextField 
-                required 
-                name="project_name"
-                label="Project Name" 
-                placeholder="Project Name"
-                value={project_name} 
-                onChange={e => onChange(e)}
+            <div>
+                <TextField 
+                    required 
+                    name="project_name"
+                    label="Project Name" 
+                    placeholder="Project Name"
+                    value={project_name} 
+                    onChange={e => onChange(e)}
                 />
-            <TextField
-                required
-                multiline
-                name="project_description"
-                label="Project Description"
-                rows={5}
-                placeholder="Project Description"
-                value={project_description}
-                onChange={e => onChange(e)}
-            />
-            <FormControl>
-                <InputLabel id="project-type-label">Project Type</InputLabel>
-                <Select
-                labelId="project-type-label"
-                value={project_type_id}
-                onChange={e => onChange(e)}
-                >
-                {projectTypes.map((projectType, index) => 
-                    <MenuItem 
-                    key={index} 
-                    value={projectType['project_type_id']}>
-                        {projectType['project_type_name']}
-                    </MenuItem>
-                )}
-                </Select>
-            </FormControl>
-            <Button 
-                variant="contained" 
-                color="primary"
-                onClick={createNewProject}>
-                    Create Project
-            </Button>
+            </div>
+            <div>
+                <TextField
+                    required
+                    multiline
+                    name="project_description"
+                    label="Project Description"
+                    rows={5}
+                    placeholder="Project Description"
+                    value={project_description}
+                    onChange={e => onChange(e)}
+                />
+            </div>
+            <div>
+                <FormControl style={{minWidth: 200}}>
+                    <InputLabel id="project-type-label">Project Type</InputLabel>
+                    <Select
+                    labelId="project-type-label"
+                    value={project_type_id}
+                    name="project_type_id"
+                    onChange={e => onChange(e)}
+                    >
+                    {projectTypes.map((projectType, index) => 
+                        <MenuItem 
+                        key={index} 
+                        value={projectType['project_type_id']}>
+                            {projectType['project_type_name']}
+                        </MenuItem>
+                    )}
+                    </Select>
+                </FormControl>
+            </div>
+            <div>
+                <Button 
+                    variant="contained" 
+                    color="primary"
+                    onClick={createNewProject}>
+                        Create Project
+                </Button>
+            </div>
+
         </form>
     )
 }
