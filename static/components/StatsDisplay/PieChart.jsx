@@ -1,5 +1,5 @@
 
-const StatsPieChart = ({entriesData}) => {
+const PieChart = ({entriesData}) => {
     return (
         <div>
             

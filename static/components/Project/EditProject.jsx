@@ -1,7 +1,7 @@
 const { useState } = React;
 const { useHistory } = ReactRouterDOM;
 
-const CreateProject = ({projectTypes, updateProjects}) => {
+const CreateProject = ({projectTypes, updateProjectsData, project_id}) => {
     let history = useHistory();
     const [projectData, setProjectData] = useState({
         project_name: '',
@@ -19,14 +19,14 @@ const CreateProject = ({projectTypes, updateProjects}) => {
         })
     };
 
-    const createNewProject = async () => {
+    const updateProject = async () => {
         const newProject = {
             project_name: project_name,
             project_description: project_description,
             project_type_id: project_type_id
         }
-        fetch('http://localhost:5000/api/project', {
-        method: 'POST', 
+        fetch(`http://localhost:5000/api/project/${project_id}`, {
+        method: 'PUT', 
         headers: {
         'Content-Type': 'application/json',
         },
@@ -34,7 +34,7 @@ const CreateProject = ({projectTypes, updateProjects}) => {
         })
         .then(response => response.json())
         .then(data => {
-            updateProjects(data['new_data']);
+            updateProjectsData(data['new_data']);
             history.push('/');
         })
         .catch((error) => {
@@ -45,7 +45,7 @@ const CreateProject = ({projectTypes, updateProjects}) => {
 
     return (
         <ProjectForm
-        onSubmit={createNewProject}
+        onSubmit={updateProject}
         project_name={project_name}
         project_description={project_description}
         project_type_id={project_type_id}
