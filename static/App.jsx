@@ -9,6 +9,8 @@ const App = () => {
     const [projectTypes, setProjectTypes] = useState([]);
     const [entryTypes, setEntryTypes] = useState([]);
     const [entriesData, setEntriesData] = useState([]);
+    const [filteredEntriesData, setFilteredEntriesData] = useState([]);
+    const [currentProject, setCurrentProject] = useState('all');
 
     const loadData = () => {
         fetch('http://localhost:5000/api/projects', {
@@ -27,6 +29,7 @@ const App = () => {
             .then(response => response.json())
             .then(data => {
                 setEntriesData(data);
+                setFilteredEntriesData(data);
             })
             .catch((error) => {
                 console.error('Error:', error);
@@ -65,6 +68,17 @@ const App = () => {
         setEntriesData([...entriesData, newEntry]);
     }
 
+    const onChange = e => {
+        const selectedProject = e.target.value;
+        setCurrentProject(selectedProject);
+        if(selectedProject === 'all'){
+            setFilteredEntriesData(entriesData);
+        }else {
+            const newFilteredData = entriesData.filter(entry => entry['project_id'] === selectedProject);
+            setFilteredEntriesData(newFilteredData);
+        }
+    }
+
     return (
         <BrowserRouter>
             <Box className="App">
@@ -75,6 +89,27 @@ const App = () => {
                             <React.Fragment>
                                 <Link to="/new-project">New Project</Link>
                                 <Link to="/new-entry">New Entry</Link>
+                                <FormControl style={{minWidth: 200}}>
+                                <InputLabel id="project-filter-label">Project</InputLabel>
+                                    <Select
+                                    labelId="project-filter-label"
+                                    value={currentProject}
+                                    name="currentProject"
+                                    onChange={e => onChange(e)}
+                                    >
+                                        <MenuItem 
+                                        value={'all'}>
+                                            All
+                                        </MenuItem>
+                                    {projectsData.map((projectData, index) => 
+                                        <MenuItem 
+                                        key={index} 
+                                        value={projectData['project_id']}>
+                                            {projectData['project_name']}
+                                        </MenuItem>
+                                    )}
+                                    </Select>
+                                </FormControl>
                             </React.Fragment>
                         ) : (
                             <React.Fragment>
@@ -90,7 +125,7 @@ const App = () => {
                                 <Box>
                                     {userID ? (
                                         <StatsDisplay
-                                        entriesData={entriesData}
+                                        entriesData={filteredEntriesData}
                                         >
                                         </StatsDisplay>
                                     ) : (
@@ -126,6 +161,7 @@ const App = () => {
                                     <CreateEntry
                                     entryTypes={entryTypes}
                                     updateEntriesData={updateEntriesData}
+                                    projectsData={projectsData}
                                     >
                                     </CreateEntry>
                                 </Box>

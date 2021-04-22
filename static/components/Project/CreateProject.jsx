@@ -35,7 +35,7 @@ const CreateProject = ({projectTypes, updateProjects}) => {
         })
         .then(response => response.json())
         .then(data => {
-            updateProjects(data);
+            updateProjects(data['new_data']);
             history.push('/');
         })
         .catch((error) => {
