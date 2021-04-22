@@ -94,11 +94,12 @@ def add_project():
     #user = crud.get_user_by_id(user_id)
     project_type = crud.get_project_type_by_id(project_data['project_type_id'])
     if user and project_type:
-        crud.create_project(user=user, 
+        project = crud.create_project(user=user, 
             project_type=project_type, 
             project_name=project_data['project_name'], 
             project_description=project_data['project_description'], 
             project_create_date=datetime.now())
+        return jsonify({'message': 'success', 'new_data': project.to_dict()})
     else:
         if not user and not project_type:
             return jsonify({'message': 'User and project_type not found.'})
@@ -106,7 +107,7 @@ def add_project():
             return jsonify({'message': 'Project_type not found.'})
         else:
             return jsonify({'message': 'User not found.'})
-    return jsonify({'message': 'Success!'})
+    
 
 @app.route('/api/project/<project_id>', methods=['PUT'])
 def update_project(project_id):
@@ -136,7 +137,7 @@ def add_entry():
 
 @app.route('/api/entries')
 def get_entries_by_user():
-    """Gets list of entries for the logged in user."""
+    """Gets list of entries for the logged in usereturn jsonify({'message': 'Success!', 'new_data': project.to_dict()})r."""
     db_entries = crud.get_entries_by_user_id(session['user_id'])
     entries_list = []
     for entry in db_entries:
