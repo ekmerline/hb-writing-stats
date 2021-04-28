@@ -1,6 +1,9 @@
-const { TableContainer, Table, TableHead, TableBody, TableRow, TableCell} = MaterialUI;
+const { useHistory } = ReactRouterDOM;
+const { TableContainer, Table, TableHead, TableBody, TableRow, TableCell, Button} = MaterialUI;
 
-const StatsDisplay = ({entriesData}) => {
+const StatsDisplay = ({entriesData, selectEntry}) => {
+
+  
     return (
     <TableContainer>
       <Table aria-label="entry stats table">
@@ -11,19 +14,16 @@ const StatsDisplay = ({entriesData}) => {
             <TableCell align="right">Minutes</TableCell>
             <TableCell align="right">Words</TableCell>
             <TableCell align="right">Date</TableCell>
+            <TableCell align="right">Edit/Delete</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {entriesData.map(entryData => (
-            <TableRow key={entryData['entry_id']}>
-              <TableCell component="th" scope="row">
-                {entryData['project_name']}
-              </TableCell>
-              <TableCell align="right">{entryData['entry_type_name']}</TableCell>
-              <TableCell align="right">{entryData['entry_minutes']}</TableCell>
-              <TableCell align="right">{entryData['entry_words']}</TableCell>
-              <TableCell align="right">{entryData['entry_datetime']}</TableCell>
-            </TableRow>
+            <StatsTableRow 
+            key={entryData['entry_id']}
+            entryData={entryData}
+            selectEntry={selectEntry}
+            />
           ))}
         </TableBody>
       </Table>
