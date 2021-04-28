@@ -1,8 +1,10 @@
-const { AppBar, Toolbar, Box, Typography } = MaterialUI;
-const { BrowserRouter, Link, Switch, Route } = ReactRouterDOM;
+const { AppBar, Toolbar, Box, Typography, Checkbox, List, ListItem, ListItemIcon, ListItemSecondaryAction, ListItemText, IconButton, Button, Menu, MenuItem } = MaterialUI;
+const { BrowserRouter, Link, Switch, Route, useHistory } = ReactRouterDOM;
 const { useState } = React;
 
 const App = () => {
+
+    let history = useHistory();
 
     const [userID, setUserID ] = useState(null);
     const [projectsData, setProjectsData] = useState([]);
@@ -12,7 +14,19 @@ const App = () => {
     const [filteredEntriesData, setFilteredEntriesData] = useState([]);
     const [currentProject, setCurrentProject] = useState('all');
     const [currentEntry, setCurrentEntry] = useState({});
+    const [selectedProjectIDs, setSelectedProjectIDs] = useState(new Set());
 
+    const [anchorEl, setAnchorEl] = React.useState(null);
+
+    const handleClick = (event) => {
+        setAnchorEl(event.currentTarget);
+      };
+    
+      const handleClose = () => {
+        setAnchorEl(null);
+      };
+
+      
     const loadData = () => {
         fetch('http://localhost:5000/api/projects', {
             method: 'GET'
@@ -91,53 +105,75 @@ const App = () => {
         setCurrentEntry(entryData);
     }
 
-    const onChange = e => {
-        const selectedProject = e.target.value;
-        setCurrentProject(selectedProject);
-        if(selectedProject === 'all'){
+
+    const handleToggle = projectID => {
+        const newSet = new Set(selectedProjectIDs);
+        if(selectedProjectIDs.has(projectID)){
+            newSet.delete(projectID);
+            setSelectedProjectIDs(newSet);
+            
+        }else {
+            newSet.add(projectID);
+            setSelectedProjectIDs(newSet);
+        }
+        if(newSet.size === 0){
             setFilteredEntriesData(entriesData);
         }else {
-            const newFilteredData = entriesData.filter(entry => entry['project_id'] === selectedProject);
-            setFilteredEntriesData(newFilteredData);
+            const newFilteredEntries = entriesData.filter(entryData => newSet.has(entryData['project_id']));
+            setFilteredEntriesData(newFilteredEntries);
         }
     }
+
+    const selectedProjectEdit = projectID => {
+        setCurrentProject(projectID);
+        history.push('/edit-project');
+    }
+
 
     return (
         <BrowserRouter>
             <Box className="App">
                 <AppBar position="static" color="secondary">
                     <Toolbar>
-                        <Link to="/">Home</Link>
+                        <MaterialUI.Link component={Link} to="/">Home</MaterialUI.Link>
                         {userID ? (
                             <React.Fragment>
-                                <Link to="/new-project">New Project</Link>
-                                <Link to="/edit-project">Edit Project</Link>
-                                <Link to="/new-entry">New Entry</Link>
-                                <FormControl style={{minWidth: 200}}>
-                                <InputLabel id="project-filter-label">Project</InputLabel>
-                                    <Select
-                                    labelId="project-filter-label"
-                                    value={currentProject}
-                                    name="currentProject"
-                                    onChange={e => onChange(e)}
-                                    >
-                                        <MenuItem 
-                                        value={'all'}>
-                                            All
+                                <MaterialUI.Link component={Link} to="/new-project">New Project</MaterialUI.Link>
+                                <MaterialUI.Link component={Link} to="/new-entry">New Entry</MaterialUI.Link>
+                                <div>
+                                    <Button aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick}>
+                                    Projects
+                                    </Button>
+                                <Menu
+                                id="simple-menu"
+                                anchorEl={anchorEl}
+                                keepMounted
+                                open={Boolean(anchorEl)}
+                                onClose={handleClose}
+                                >
+                                    {projectsData.map((projectData) => (
+                                        <MenuItem key={projectData['project_id']} dense button onClick={() => handleToggle(projectData['project_id'])}>
+                                            <ListItemIcon>
+                                                <Checkbox
+                                                edge="start"
+                                                checked={selectedProjectIDs.has(projectData['project_id'])}
+                                                tabIndex={-1}
+                                                />
+                                            </ListItemIcon>
+                                            <ListItemText id={`project-checkbox-${projectData['project_id']}`} primary={projectData['project_name']} />
+                                            <ListItemSecondaryAction>
+                                                <IconButton edge="end" aria-label="edit" onClick={() => selectedProjectEdit(projectData['project_id'])}>
+                                                    <span>Edit</span>
+                                                </IconButton>
+                                            </ListItemSecondaryAction>
                                         </MenuItem>
-                                    {projectsData.map((projectData, index) => 
-                                        <MenuItem 
-                                        key={index} 
-                                        value={projectData['project_id']}>
-                                            {projectData['project_name']}
-                                        </MenuItem>
-                                    )}
-                                    </Select>
-                                </FormControl>
+                                        ))}
+                                </Menu>
+                                </div>
                             </React.Fragment>
                         ) : (
                             <React.Fragment>
-                                <Link to="/login">Login</Link>
+                                <MaterialUI.Link component={Link} to="/login">Login</MaterialUI.Link>
                             </React.Fragment>
                         )}
                     </Toolbar>
@@ -184,6 +220,7 @@ const App = () => {
                             <React.Fragment>
                                 <Box>
                                     <EditProject
+                                    currentProject={currentProject}
                                     projectTypes={projectTypes}
                                     updateProjectsData={updateProject}
                                     projectsData={projectsData}
