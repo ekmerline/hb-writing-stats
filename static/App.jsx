@@ -11,6 +11,7 @@ const App = () => {
     const [entriesData, setEntriesData] = useState([]);
     const [filteredEntriesData, setFilteredEntriesData] = useState([]);
     const [currentProject, setCurrentProject] = useState('all');
+    const [currentEntry, setCurrentEntry] = useState({});
 
     const loadData = () => {
         fetch('http://localhost:5000/api/projects', {
@@ -60,12 +61,34 @@ const App = () => {
         loadData();
     }
 
-    const updateProjects = newProject => {
+    const addNewProject = newProject => {
         setProjectsData([...projectsData, newProject]);
     }
 
-    const updateEntriesData = newEntry => {
+    const updateProject = newProject => {
+        const newProjectsData = projectsData.filter(project => {
+            if(project['project_id'] === newProject['project_id']){
+                project = newProject;
+            }
+        })
+        setProjectsData(newProjectsData);
+    }
+
+    const addNewEntry = newEntry => {
         setEntriesData([...entriesData, newEntry]);
+    }
+
+    const updateEntriesData = newEntry => {
+        const newEntriesData = entriesData.filter(entry => {
+            if(entry['entry_id'] === newEntry['entry_id']){
+                entry = newEntry;
+            }
+        })
+        setEntriesData(newEntriesData);
+    }
+
+    const selectEntry = entryData => {
+        setCurrentEntry(entryData);
     }
 
     const onChange = e => {
@@ -88,6 +111,7 @@ const App = () => {
                         {userID ? (
                             <React.Fragment>
                                 <Link to="/new-project">New Project</Link>
+                                <Link to="/edit-project">Edit Project</Link>
                                 <Link to="/new-entry">New Entry</Link>
                                 <FormControl style={{minWidth: 200}}>
                                 <InputLabel id="project-filter-label">Project</InputLabel>
@@ -126,6 +150,7 @@ const App = () => {
                                     {userID ? (
                                         <StatsDisplay
                                         entriesData={filteredEntriesData}
+                                        selectEntry={selectEntry}
                                         >
                                         </StatsDisplay>
                                     ) : (
@@ -149,9 +174,21 @@ const App = () => {
                                 <Box>
                                     <CreateProject
                                     projectTypes={projectTypes}
-                                    updateProjects={updateProjects}
+                                    updateProjectsData={addNewProject}
                                     >
                                     </CreateProject>
+                                </Box>
+                            </React.Fragment>
+                        </Route>
+                        <Route path="/edit-project">
+                            <React.Fragment>
+                                <Box>
+                                    <EditProject
+                                    projectTypes={projectTypes}
+                                    updateProjectsData={updateProject}
+                                    projectsData={projectsData}
+                                    >
+                                    </EditProject>
                                 </Box>
                             </React.Fragment>
                         </Route>
@@ -160,10 +197,23 @@ const App = () => {
                                 <Box>
                                     <CreateEntry
                                     entryTypes={entryTypes}
-                                    updateEntriesData={updateEntriesData}
+                                    updateEntries={addNewEntry}
                                     projectsData={projectsData}
                                     >
                                     </CreateEntry>
+                                </Box>
+                            </React.Fragment>
+                        </Route>
+                        <Route path="/edit-entry">
+                            <React.Fragment>
+                                <Box>
+                                    <EditEntry
+                                    entryTypes={entryTypes}
+                                    updateEntries={updateEntriesData}
+                                    projectsData={projectsData}
+                                    currentEntry={currentEntry}
+                                    >
+                                    </EditEntry>
                                 </Box>
                             </React.Fragment>
                         </Route>

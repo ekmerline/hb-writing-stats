@@ -1,7 +1,7 @@
 const { useState } = React;
 const { useHistory } = ReactRouterDOM;
 
-const CreateProject = ({projectTypes, updateProjects}) => {
+const CreateProject = ({projectTypes, updateProjectsData}) => {
     let history = useHistory();
     const [projectData, setProjectData] = useState({
         project_name: '',
@@ -34,7 +34,7 @@ const CreateProject = ({projectTypes, updateProjects}) => {
         })
         .then(response => response.json())
         .then(data => {
-            updateProjects(data['new_data']);
+            updateProjectsData(data['new_data']);
             history.push('/');
         })
         .catch((error) => {

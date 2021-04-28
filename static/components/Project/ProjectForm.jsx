@@ -1,5 +1,3 @@
-const { useState } = React;
-const { useHistory } = ReactRouterDOM;
 const { TextField, Button, FormControl, InputLabel, Select, MenuItem  } = MaterialUI;
 
 const ProjectForm = ({onSubmit, project_name, project_description, project_type_id, projectTypes, onChange}) => {
