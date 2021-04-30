@@ -1,6 +1,6 @@
 const { TextField, Button, FormControl, InputLabel, Select, MenuItem  } = MaterialUI;
 
-const ProjectForm = ({onSubmit, project_name, project_description, project_type_id, projectTypes, onChange}) => {
+const ProjectForm = ({onSubmit, project_name, project_description, project_type_id, projectTypes, onChange, buttonText}) => {
 
     return (
         <form>
@@ -50,7 +50,7 @@ const ProjectForm = ({onSubmit, project_name, project_description, project_type_
                     variant="contained" 
                     color="primary"
                     onClick={onSubmit}>
-                        Create Project
+                       {buttonText}
                 </Button>
             </div>
 

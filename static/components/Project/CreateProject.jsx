@@ -34,7 +34,7 @@ const CreateProject = ({projectTypes, updateProjectsData}) => {
         })
         .then(response => response.json())
         .then(data => {
-            updateProjectsData(data['new_data']);
+            updateProjectsData(data['data']);
             history.push('/');
         })
         .catch((error) => {
@@ -51,6 +51,7 @@ const CreateProject = ({projectTypes, updateProjectsData}) => {
         project_type_id={project_type_id}
         projectTypes={projectTypes}
         onChange={onChange}
+        buttonText={"Create Project"}
         >
         </ProjectForm>
     )

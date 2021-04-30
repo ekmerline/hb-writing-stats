@@ -1,21 +1,47 @@
+const { useState } = React;
+const {  Button, Menu } = MaterialUI;
+
+const ProjectsMenuList = ({projectsData, handleToggle, selectProject, selectedProjectIDs, deleteProject}) => {
+
+    const [anchorEl, setAnchorEl] = useState(null);
+
+    const handleClick = (event) => {
+        setAnchorEl(event.currentTarget);
+      };
+    
+      const handleClose = () => {
+        setAnchorEl(null);
+      };
 
 
-const ProjectMenuItem = ({}) => {
     return (
-        <MenuItem key={projectData['project_id']} dense button onClick={() => handleToggle(projectData['project_id'])}>
-            <ListItemIcon>
-                <Checkbox
-                edge="start"
-                checked={selectedProjectIDs.has(projectData['project_id'])}
-                tabIndex={-1}
-                />
-            </ListItemIcon>
-            <ListItemText id={`project-checkbox-${projectData['project_id']}`} primary={projectData['project_name']} />
-            <ListItemSecondaryAction>
-                <IconButton edge="end" aria-label="edit" onClick={() => selectedProjectEdit(projectData['project_id'])}>
-                    <span>Edit</span>
-                </IconButton>
-            </ListItemSecondaryAction>
-        </MenuItem>
+    <div>
+        <Button aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick}>
+        Projects
+        </Button>
+        <Menu
+        id="simple-menu"
+        anchorEl={anchorEl}
+        keepMounted
+        open={Boolean(anchorEl)}
+        onClose={handleClose}
+        >
+            {projectsData.map((projectData) => (
+                <div
+                key={projectData['project_id']}
+                >
+                    <ProjectMenuItem
+                    selectedProjectIDs={selectedProjectIDs}
+                    selectProject={selectProject}
+                    handleToggle={handleToggle}
+                    projectData={projectData}
+                    deleteProject={deleteProject}
+                    />
+                </div>
+
+                ))}
+        </Menu>
+    </div>
     )
 }
+
