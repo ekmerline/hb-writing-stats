@@ -38,7 +38,7 @@ const CreateEntry = ({entryTypes, updateEntries, projectsData}) => {
         })
         .then(response => response.json())
         .then(data => {
-            updateEntries(data['new_data']);
+            updateEntries(data['data']);
             history.push('/');
         })
         .catch((error) => {

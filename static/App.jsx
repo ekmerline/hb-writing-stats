@@ -1,10 +1,8 @@
 const { AppBar, Toolbar, Box, Typography, Checkbox, List, ListItem, ListItemIcon, ListItemSecondaryAction, ListItemText, IconButton, Button, Menu, MenuItem } = MaterialUI;
-const { BrowserRouter, Link, Switch, Route, useHistory } = ReactRouterDOM;
+const { BrowserRouter, Link, Switch, Route } = ReactRouterDOM;
 const { useState } = React;
 
 const App = () => {
-
-    let history = useHistory();
 
     const [userID, setUserID ] = useState(null);
     const [projectsData, setProjectsData] = useState([]);
@@ -15,18 +13,20 @@ const App = () => {
     const [currentProject, setCurrentProject] = useState('all');
     const [currentEntry, setCurrentEntry] = useState({});
     const [selectedProjectIDs, setSelectedProjectIDs] = useState(new Set());
+    const [pieData, setPieData] = useState({});
 
-    const [anchorEl, setAnchorEl] = React.useState(null);
+    const filterChartData = chartEntriesData => {
+        return chartEntriesData.reduce((acc, entry) => {
+            if(acc[entry['entry_type_name']] !== undefined){
+                acc[entry['entry_type_name']] += entry['entry_minutes'];
+            }else {
+                acc[entry['entry_type_name']] = entry['entry_minutes'];
+            }
+            return acc;
+        }, {});
+    }
 
-    const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
-      };
-    
-      const handleClose = () => {
-        setAnchorEl(null);
-      };
 
-      
     const loadData = () => {
         fetch('http://localhost:5000/api/projects', {
             method: 'GET'
@@ -45,6 +45,8 @@ const App = () => {
             .then(data => {
                 setEntriesData(data);
                 setFilteredEntriesData(data);
+                const newChartData = filterChartData(data);
+                setPieData(newChartData);
             })
             .catch((error) => {
                 console.error('Error:', error);
@@ -80,11 +82,9 @@ const App = () => {
     }
 
     const updateProject = newProject => {
-        const newProjectsData = projectsData.filter(project => {
-            if(project['project_id'] === newProject['project_id']){
-                project = newProject;
-            }
-        })
+        const projectIndex = projectsData.findIndex(project => project['project_id'] === newProject['project_id']);
+        const newProjectsData = [...projectsData];
+        newProjectsData[projectIndex] = newProject;
         setProjectsData(newProjectsData);
     }
 
@@ -93,11 +93,13 @@ const App = () => {
     }
 
     const updateEntriesData = newEntry => {
-        const newEntriesData = entriesData.filter(entry => {
-            if(entry['entry_id'] === newEntry['entry_id']){
-                entry = newEntry;
-            }
-        })
+        const entryIndex = entriesData.findIndex(entry => entry['entry_id'] === newEntry['entry_id']);
+        const newEntriesData = [...entriesData];
+        newEntriesData[entryIndex] = newEntry;
+
+        //const newEntriesData = entriesData.map(entry => entry['entry_id'] !== newEntry['entry_id'] ?  entry : newEntry);
+        //if in current filter, add to that
+        setFilteredEntriesData(newEntriesData);
         setEntriesData(newEntriesData);
     }
 
@@ -105,6 +107,16 @@ const App = () => {
         setCurrentEntry(entryData);
     }
 
+    const deleteEntry = entryData => {
+        const newEntriesData = entriesData.filter(entry => entry['entry_id'] !== entryData['entry_id']);
+        setEntriesData(newEntriesData);
+    }
+    const deleteProject = projectData => {
+        const newProjectsData = projectsData.filter(project => project['project_id'] !== projectData['project_id']);
+        setProjectsData(newProjectsData);
+        const newEntriesData = entriesData.filter(entry => entry['project_id'] !== projectData['project_id']);
+        setEntriesData(newEntriesData);
+    }
 
     const handleToggle = projectID => {
         const newSet = new Set(selectedProjectIDs);
@@ -118,15 +130,18 @@ const App = () => {
         }
         if(newSet.size === 0){
             setFilteredEntriesData(entriesData);
+            const newChartData = filterChartData(entriesData);
+            setPieData(newChartData);
         }else {
             const newFilteredEntries = entriesData.filter(entryData => newSet.has(entryData['project_id']));
             setFilteredEntriesData(newFilteredEntries);
+            const newChartData = filterChartData(newFilteredEntries);
+            setPieData(newChartData);
         }
     }
 
-    const selectedProjectEdit = projectID => {
-        setCurrentProject(projectID);
-        history.push('/edit-project');
+    const selectProject = projectData => {
+        setCurrentProject(projectData);
     }
 
 
@@ -140,40 +155,18 @@ const App = () => {
                             <React.Fragment>
                                 <MaterialUI.Link component={Link} to="/new-project">New Project</MaterialUI.Link>
                                 <MaterialUI.Link component={Link} to="/new-entry">New Entry</MaterialUI.Link>
-                                <div>
-                                    <Button aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick}>
-                                    Projects
-                                    </Button>
-                                <Menu
-                                id="simple-menu"
-                                anchorEl={anchorEl}
-                                keepMounted
-                                open={Boolean(anchorEl)}
-                                onClose={handleClose}
-                                >
-                                    {projectsData.map((projectData) => (
-                                        <MenuItem key={projectData['project_id']} dense button onClick={() => handleToggle(projectData['project_id'])}>
-                                            <ListItemIcon>
-                                                <Checkbox
-                                                edge="start"
-                                                checked={selectedProjectIDs.has(projectData['project_id'])}
-                                                tabIndex={-1}
-                                                />
-                                            </ListItemIcon>
-                                            <ListItemText id={`project-checkbox-${projectData['project_id']}`} primary={projectData['project_name']} />
-                                            <ListItemSecondaryAction>
-                                                <IconButton edge="end" aria-label="edit" onClick={() => selectedProjectEdit(projectData['project_id'])}>
-                                                    <span>Edit</span>
-                                                </IconButton>
-                                            </ListItemSecondaryAction>
-                                        </MenuItem>
-                                        ))}
-                                </Menu>
-                                </div>
+                                <ProjectsMenuList
+                                selectedProjectIDs={selectedProjectIDs}
+                                selectProject={selectProject}
+                                deleteProject={deleteProject}
+                                projectsData={projectsData}
+                                handleToggle={handleToggle}
+                                />
                             </React.Fragment>
                         ) : (
                             <React.Fragment>
                                 <MaterialUI.Link component={Link} to="/login">Login</MaterialUI.Link>
+                                <MaterialUI.Link component={Link} to="/register">Register</MaterialUI.Link>
                             </React.Fragment>
                         )}
                     </Toolbar>
@@ -184,13 +177,25 @@ const App = () => {
                             <React.Fragment>
                                 <Box>
                                     {userID ? (
-                                        <StatsDisplay
-                                        entriesData={filteredEntriesData}
-                                        selectEntry={selectEntry}
-                                        >
-                                        </StatsDisplay>
+                                        <React.Fragment>
+                                            <StatsDisplay
+                                            entriesData={filteredEntriesData}
+                                            selectEntry={selectEntry}
+                                            deleteEntry={deleteEntry}
+                                            >
+                                            </StatsDisplay>
+                                            <PieChart 
+                                            labels={Object.keys(pieData)}
+                                            data={Object.values(pieData)}
+                                            />
+                                            <LineGraph
+                                            entriesData={filteredEntriesData}
+                                            />
+                                        </React.Fragment>
+
                                     ) : (
                                     <React.Fragment>
+                                    
                                     The main page!
                                     </React.Fragment>
                                     )}
@@ -202,6 +207,14 @@ const App = () => {
                                 <Box>
                                     <Login verifyUser={verifyUser}>
                                     </Login>
+                                </Box>
+                            </React.Fragment>
+                        </Route>
+                        <Route path="/register">
+                            <React.Fragment>
+                                <Box>
+                                    <Register verifyUser={verifyUser}>
+                                    </Register>
                                 </Box>
                             </React.Fragment>
                         </Route>
@@ -223,7 +236,6 @@ const App = () => {
                                     currentProject={currentProject}
                                     projectTypes={projectTypes}
                                     updateProjectsData={updateProject}
-                                    projectsData={projectsData}
                                     >
                                     </EditProject>
                                 </Box>

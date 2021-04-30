@@ -30,6 +30,16 @@ def new_entry_redirect():
 def new_project_redirect():
     """Redirect new project"""
     return redirect('/')
+
+@app.route('/edit-project')
+def edit_project_redirect():
+    """Redirect edit project"""
+    return redirect('/')
+
+@app.route('/edit-entry')
+def edit_entry_redirect():
+    """Redirect edit entry"""
+    return redirect('/')
 ###  ENDPOINTS ####
 
 ### USER ###
@@ -45,29 +55,23 @@ def login_user():
         if user.password == password:
             session['user_id'] = user.user_id
             #session['user_name'] = user.user_name
-            return jsonify({'message': 'Success', 'user_id': f'{user.user_id}', 'user_name': f'{user.user_name}'})
+            return jsonify({"message": "succcess", "data": {"user_id": f"{user.user_id}", "user_name": f"{user.user_name}"}})
         else:
-            return jsonify({'message': 'Your password was incorrect.'})
+            return jsonify({"message": "error", "message": "Your password was incorrect."})
     else:
-        return jsonify({'message': 'No user was found with that name.'})
+        return jsonify({"message": "No user was found with that name."})
 
-@app.route('/api/users', methods=['POST'])
+@app.route('/api/register', methods=['POST'])
 def register_user():
     """Registers a new user."""
     user_data = json.loads(request.data)
-    user = crud.create_user(user_data['user_name'], user_data['email'], user_data['password'])
-    new_user = crud.get_user_by_id(user.user_id)
-    if new_user:
-        return jsonify({'message': 'Success', 'data': f'${new_user.to_dict()}'})
-    else:
-        return jsonify({'message': 'Error'})
+    return jsonify(crud.create_user(user_data['user_name'], user_data['email'], user_data['password']))
 
 @app.route('/api/user/<user_id>', methods=['PUT'])
 def update_user(user_id):
     """Updates user."""
     new_data = json.loads(request.data)
-    updated_user = crud.update_user(user_id, new_data)
-    return jsonify(updated_user.to_dict())
+    return jsonify(crud.update_user(user_id, new_data))
 
 @app.route('/api/user/<user_id>', methods=['DELETE'])
 def delete_user(user_id):
@@ -80,11 +84,7 @@ def delete_user(user_id):
 @app.route('/api/projects')
 def get_projects_by_user():
     """Gets list of projects for the logged in user."""
-    db_projects = crud.get_projects_by_user_id(session['user_id'])
-    projects_list = []
-    for project in db_projects:
-        projects_list.append(project.to_dict())
-    return jsonify(projects_list)
+    return jsonify(crud.get_projects_by_user_id(session['user_id']))
 
 @app.route('/api/project', methods=['POST'])
 def add_project():
@@ -99,22 +99,21 @@ def add_project():
             project_name=project_data['project_name'], 
             project_description=project_data['project_description'], 
             project_create_date=datetime.now())
-        return jsonify({'message': 'success', 'new_data': project.to_dict()})
+        return jsonify(project)
     else:
         if not user and not project_type:
-            return jsonify({'message': 'User and project_type not found.'})
+            return jsonify({"message": "error", "data": "User and project_type not found."})
         elif not project_type:
-            return jsonify({'message': 'Project_type not found.'})
+            return jsonify({"message": "error", "data": "Project_type not found."})
         else:
-            return jsonify({'message': 'User not found.'})
+            return jsonify({"message": "error", "data": "User not found."})
     
 
 @app.route('/api/project/<project_id>', methods=['PUT'])
 def update_project(project_id):
     """Updates project."""
     new_data = json.loads(request.data)
-    updated_project = crud.update_project(project_id, new_data)
-    return jsonify(updated_project.to_dict())
+    return jsonify(crud.update_project(project_id, new_data))
 
 @app.route('/api/project/<project_id>', methods=['DELETE'])
 def delete_project(project_id):
@@ -127,34 +126,30 @@ def delete_project(project_id):
 def add_entry():
     """Creates a new entry."""
     entry_data = request.get_json()
-    new_entry = crud.create_entry(project_id=entry_data['project_id'],
+    entry = crud.create_entry(project_id=entry_data['project_id'],
                     entry_type_id=entry_data['entry_type_id'],
                     entry_words=entry_data['entry_words'],
                     entry_minutes=entry_data['entry_minutes'],
                     entry_note=entry_data['entry_note'],
                     entry_datetime=datetime.now())
-    return new_entry
+    return jsonify(entry)
 
 @app.route('/api/entries')
 def get_entries_by_user():
     """Gets list of entries for the logged in usereturn jsonify({'message': 'Success!', 'new_data': project.to_dict()})r."""
-    db_entries = crud.get_entries_by_user_id(session['user_id'])
-    entries_list = []
-    for entry in db_entries:
-        entries_list.append(entry.to_dict())
-    return jsonify(entries_list)
+    return jsonify(crud.get_entries_by_user_id(session['user_id']))
 
 @app.route('/api/entry/<entry_id>', methods=['PUT'])
 def update_entry(entry_id):
     """Updates entry."""
     new_data = json.loads(request.data)
-    updated_entry = crud.update_entry(entry_id, new_data)
-    return jsonify(updated_entry.to_dict())
+    return jsonify(crud.update_entry(entry_id, new_data))
 
 @app.route('/api/entry/<entry_id>', methods=['DELETE'])
 def delete_entry(entry_id):
     """Deletes entry."""
-    crud.delete_entry(entry_id)
+    return jsonify(crud.delete_entry(entry_id))
+
 
 ### ENTRY TYPE ###
 @app.route('/api/entry-types')

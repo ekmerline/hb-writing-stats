@@ -23,7 +23,7 @@ const EditEntry = ({entryTypes, updateEntries, projectsData, currentEntry}) => {
         })
     };
 
-    const createNewEntry = async () => {
+    const updateEntry = async () => {
         const newEntry = {
             entry_minutes: entry_minutes,
             entry_words: entry_words,
@@ -40,7 +40,7 @@ const EditEntry = ({entryTypes, updateEntries, projectsData, currentEntry}) => {
         })
         .then(response => response.json())
         .then(data => {
-            updateEntries(data['new_data']);
+            updateEntries(data['data']);
             history.push('/');
         })
         .catch((error) => {
@@ -51,7 +51,7 @@ const EditEntry = ({entryTypes, updateEntries, projectsData, currentEntry}) => {
 
     return (
        <EntryForm
-       onSubmit={createNewEntry}
+       onSubmit={updateEntry}
        onChange={onChange}
        entryTypes={entryTypes}
        projectsData={projectsData}

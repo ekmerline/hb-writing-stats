@@ -2,14 +2,15 @@ const { useState } = React;
 const { useHistory } = ReactRouterDOM;
 const { TextField, Button  } = MaterialUI;
 
-const Login = ({verifyUser}) => {
+const Register = ({verifyUser}) => {
     let history = useHistory();
     const [userData, setUserData] = useState({
         user_name: '',
-        password: ''
+        password: '',
+        email: '',
     });
 
-    const { user_name, password } = userData;
+    const { user_name, password, email } = userData;
 
     const onChange = e => {
         const { name, value } = e.target;
@@ -19,12 +20,13 @@ const Login = ({verifyUser}) => {
         })
     };
 
-    const loginUser = async () => {
+    const registerUser = async () => {
         const newUser = {
             user_name: user_name,
-            password: password
+            password: password,
+            email: email
         }
-        fetch('http://localhost:5000/api/login', {
+        fetch('http://localhost:5000/api/register', {
         method: 'POST', 
         headers: {
         'Content-Type': 'application/json',
@@ -63,11 +65,19 @@ const Login = ({verifyUser}) => {
                 value={password}
                 onChange={e => onChange(e)}
             />
+            <TextField 
+                required 
+                name="email"
+                label="Email" 
+                placeholder="email"
+                value={email} 
+                onChange={e => onChange(e)}
+                />
             <Button 
                 variant="contained" 
                 color="primary"
-                onClick={loginUser}>
-                    Login
+                onClick={registerUser}>
+                    Register
             </Button>
         </form>
     )

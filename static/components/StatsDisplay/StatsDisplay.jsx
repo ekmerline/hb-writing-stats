@@ -1,7 +1,7 @@
 const { useHistory } = ReactRouterDOM;
 const { TableContainer, Table, TableHead, TableBody, TableRow, TableCell, Button} = MaterialUI;
 
-const StatsDisplay = ({entriesData, selectEntry}) => {
+const StatsDisplay = ({entriesData, selectEntry, deleteEntry}) => {
 
   
     return (
@@ -23,6 +23,7 @@ const StatsDisplay = ({entriesData, selectEntry}) => {
             key={entryData['entry_id']}
             entryData={entryData}
             selectEntry={selectEntry}
+            deleteEntry={deleteEntry}
             />
           ))}
         </TableBody>

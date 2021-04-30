@@ -1,14 +1,28 @@
 const { useHistory } = ReactRouterDOM;
 const { TableRow, TableCell, Button} = MaterialUI;
 
-const StatsTableRow = ({entryData, selectEntry}) => {
+const StatsTableRow = ({entryData, selectEntry, deleteEntry}) => {
 
     let history = useHistory();
     
-    const onClick = () => {
+    const handleEditClick = () => {
         selectEntry(entryData);
         history.push('/edit-entry');
     }
+
+    const handleDeleteClick = () => {
+      fetch(`http://localhost:5000/api/entry/${entryData['entry_id']}`, {
+          method: 'DELETE'
+          })
+          .then(response => response.json())
+          .then(data => {
+              deleteEntry(data['data']);
+              history.push('/');
+          })
+          .catch((error) => {
+              console.error('Error:', error);
+          });;
+  }
 
     return (
         <TableRow>
@@ -21,8 +35,14 @@ const StatsTableRow = ({entryData, selectEntry}) => {
               <TableCell align="right">{entryData['entry_datetime']}</TableCell>
               <TableCell align="right">
                 <Button
-                onClick={onClick}>
+                onClick={handleEditClick}>
                 Edit
+                </Button>
+              </TableCell>
+              <TableCell align="right">
+                <Button
+                onClick={handleDeleteClick}>
+                Del
                 </Button>
               </TableCell>
         </TableRow>
