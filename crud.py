@@ -87,9 +87,13 @@ def get_project_by_id(project_id):
 def get_projects_by_user_id(user_id):
     try:
         projects = Project.query.filter(Project.user_id == user_id).all()
+        latest_entry = Entry.query.filter(Entry.project.has(user_id = user_id)).order_by(Entry.entry_datetime.desc()).first()
         projects_list = []
         for project in projects:
-            projects_list.append(project.to_dict())
+            if project.project_id == latest_entry.project_id:
+                projects_list.insert(0, project.to_dict())
+            else:
+                projects_list.append(project.to_dict())
         return projects_list
     except SQLAlchemyError as e:
         logger.error(f"Get projects by uer id failed. Exception: {e}")

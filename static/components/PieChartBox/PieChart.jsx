@@ -1,4 +1,5 @@
 const {useEffect, useRef } = React;
+const {Box, Grid } = MaterialUI;
 
 const PieChart = ({data, labels}) => {
 
@@ -44,12 +45,17 @@ const PieChart = ({data, labels}) => {
       }, [data, labels]);
 
         return (
-            <div className="pieChart-container">
-                <canvas
-                    id="myChart"
-                    ref={chartRef}
-                />
-            </div>
+            <Grid item md={6} sm={12}>
+                <Box display="flex" {...defaultBoxProps}>
+                    <Box>
+                        <canvas
+                            id="myChart"
+                            ref={chartRef}
+                        />
+                    </Box>
+                </Box>
+            </Grid>
+
         )
 
 }

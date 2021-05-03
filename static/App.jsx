@@ -1,5 +1,5 @@
-const { AppBar, Toolbar, Box, Typography, Checkbox, List, ListItem, ListItemIcon, ListItemSecondaryAction, ListItemText, IconButton, Button, Menu, MenuItem } = MaterialUI;
-const { BrowserRouter, Link, Switch, Route } = ReactRouterDOM;
+const { Grid, AppBar, Toolbar, Box, Typography, Checkbox, List, ListItem, ListItemIcon, ListItemSecondaryAction, ListItemText, IconButton, Button, Menu, MenuItem, Tab, Tabs, Link } = MaterialUI;
+const { BrowserRouter, Switch, Route } = ReactRouterDOM;
 const { useState } = React;
 
 const App = () => {
@@ -10,8 +10,7 @@ const App = () => {
     const [entryTypes, setEntryTypes] = useState([]);
     const [entriesData, setEntriesData] = useState([]);
     const [filteredEntriesData, setFilteredEntriesData] = useState([]);
-    const [currentProject, setCurrentProject] = useState('all');
-    const [currentEntry, setCurrentEntry] = useState({});
+    const [currentProject, setCurrentProject] = useState({});
     const [selectedProjectIDs, setSelectedProjectIDs] = useState(new Set());
     const [pieData, setPieData] = useState({});
 
@@ -34,6 +33,8 @@ const App = () => {
             .then(response => response.json())
             .then(data => {
                 setProjectsData(data);
+                //query should be sorted in a way first will always be most recent
+                setCurrentProject(data[0]);
             })
             .catch((error) => {
                 console.error('Error:', error);
@@ -79,6 +80,7 @@ const App = () => {
 
     const addNewProject = newProject => {
         setProjectsData([...projectsData, newProject]);
+        setCurrentProject(newProject);
     }
 
     const updateProject = newProject => {
@@ -86,6 +88,7 @@ const App = () => {
         const newProjectsData = [...projectsData];
         newProjectsData[projectIndex] = newProject;
         setProjectsData(newProjectsData);
+        setCurrentProject(newProject);
     }
 
     const addNewEntry = newEntry => {
@@ -103,10 +106,6 @@ const App = () => {
         setEntriesData(newEntriesData);
     }
 
-    const selectEntry = entryData => {
-        setCurrentEntry(entryData);
-    }
-
     const deleteEntry = entryData => {
         const newEntriesData = entriesData.filter(entry => entry['entry_id'] !== entryData['entry_id']);
         setEntriesData(newEntriesData);
@@ -118,7 +117,7 @@ const App = () => {
         setEntriesData(newEntriesData);
     }
 
-    const handleToggle = projectID => {
+    const handleProjectsFilter = projectID => {
         const newSet = new Set(selectedProjectIDs);
         if(selectedProjectIDs.has(projectID)){
             newSet.delete(projectID);
@@ -144,133 +143,69 @@ const App = () => {
         setCurrentProject(projectData);
     }
 
+    const logout = () => {
+        sessionStorage.clear();
+        setUserID(null);
+    }
+
 
     return (
-        <BrowserRouter>
             <Box className="App">
                 <AppBar position="static" color="secondary">
                     <Toolbar>
-                        <MaterialUI.Link component={Link} to="/">Home</MaterialUI.Link>
                         {userID ? (
                             <React.Fragment>
-                                <MaterialUI.Link component={Link} to="/new-project">New Project</MaterialUI.Link>
-                                <MaterialUI.Link component={Link} to="/new-entry">New Entry</MaterialUI.Link>
-                                <ProjectsMenuList
-                                selectedProjectIDs={selectedProjectIDs}
-                                selectProject={selectProject}
-                                deleteProject={deleteProject}
-                                projectsData={projectsData}
-                                handleToggle={handleToggle}
-                                />
+                            Welcome to the Writing Stats Tracker!
                             </React.Fragment>
                         ) : (
                             <React.Fragment>
-                                <MaterialUI.Link component={Link} to="/login">Login</MaterialUI.Link>
-                                <MaterialUI.Link component={Link} to="/register">Register</MaterialUI.Link>
+                                <Button onClick={logout}>Log out</Button>
                             </React.Fragment>
                         )}
                     </Toolbar>
                 </AppBar>
                 <Box className="main">
-                    <Switch>
-                        <Route exact path="/">
                             <React.Fragment>
                                 <Box>
                                     {userID ? (
-                                        <React.Fragment>
-                                            <StatsDisplay
-                                            entriesData={filteredEntriesData}
-                                            selectEntry={selectEntry}
-                                            deleteEntry={deleteEntry}
-                                            >
-                                            </StatsDisplay>
+                                        <Grid container spacing={2}>
+                                            <ProjectBox
+                                            projectsData={projectsData}
+                                            currentProject={currentProject}
+                                            updateProject={updateProject}
+                                            projectTypes={projectTypes}
+                                            addNewProject={addNewProject}
+                                            entryTypes={entryTypes}
+                                            addNewEntry={addNewEntry}
+                                            handleProjectsFilter={handleProjectsFilter}
+                                            selectProject={selectProject}
+                                            selectedProjectIDs={selectedProjectIDs}
+                                            deleteProject={deleteProject}
+                                            />
                                             <PieChart 
                                             labels={Object.keys(pieData)}
                                             data={Object.values(pieData)}
                                             />
+                                            <EntryTableBox
+                                            entriesData={filteredEntriesData}
+                                            deleteEntry={deleteEntry}
+                                            projectsData={projectsData}
+                                            entryTypes={entryTypes}
+                                            updateEntries={updateEntriesData}
+                                            />
                                             <LineGraph
                                             entriesData={filteredEntriesData}
                                             />
-                                        </React.Fragment>
-
+                                        </Grid>
                                     ) : (
-                                    <React.Fragment>
-                                    
-                                    The main page!
-                                    </React.Fragment>
+                                    <Box>
+                                        <LoginRegister verifyUser={verifyUser}/>
+                                    </Box>
                                     )}
                                 </Box>
                             </React.Fragment>
-                        </Route>
-                        <Route path="/login">
-                            <React.Fragment>
-                                <Box>
-                                    <Login verifyUser={verifyUser}>
-                                    </Login>
-                                </Box>
-                            </React.Fragment>
-                        </Route>
-                        <Route path="/register">
-                            <React.Fragment>
-                                <Box>
-                                    <Register verifyUser={verifyUser}>
-                                    </Register>
-                                </Box>
-                            </React.Fragment>
-                        </Route>
-                        <Route path="/new-project">
-                            <React.Fragment>
-                                <Box>
-                                    <CreateProject
-                                    projectTypes={projectTypes}
-                                    updateProjectsData={addNewProject}
-                                    >
-                                    </CreateProject>
-                                </Box>
-                            </React.Fragment>
-                        </Route>
-                        <Route path="/edit-project">
-                            <React.Fragment>
-                                <Box>
-                                    <EditProject
-                                    currentProject={currentProject}
-                                    projectTypes={projectTypes}
-                                    updateProjectsData={updateProject}
-                                    >
-                                    </EditProject>
-                                </Box>
-                            </React.Fragment>
-                        </Route>
-                        <Route path="/new-entry">
-                            <React.Fragment>
-                                <Box>
-                                    <CreateEntry
-                                    entryTypes={entryTypes}
-                                    updateEntries={addNewEntry}
-                                    projectsData={projectsData}
-                                    >
-                                    </CreateEntry>
-                                </Box>
-                            </React.Fragment>
-                        </Route>
-                        <Route path="/edit-entry">
-                            <React.Fragment>
-                                <Box>
-                                    <EditEntry
-                                    entryTypes={entryTypes}
-                                    updateEntries={updateEntriesData}
-                                    projectsData={projectsData}
-                                    currentEntry={currentEntry}
-                                    >
-                                    </EditEntry>
-                                </Box>
-                            </React.Fragment>
-                        </Route>
-                    </Switch>
                 </Box>
             </Box>
-        </BrowserRouter>
-
 
     )
 }

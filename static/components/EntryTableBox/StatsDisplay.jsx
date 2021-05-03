@@ -1,7 +1,7 @@
 const { useHistory } = ReactRouterDOM;
 const { TableContainer, Table, TableHead, TableBody, TableRow, TableCell, Button} = MaterialUI;
 
-const StatsDisplay = ({entriesData, selectEntry, deleteEntry}) => {
+const StatsDisplay = ({entriesData, deleteEntry, projectsData, entryTypes, updateEntries}) => {
 
   
     return (
@@ -10,11 +10,13 @@ const StatsDisplay = ({entriesData, selectEntry, deleteEntry}) => {
         <TableHead>
           <TableRow>
           <TableCell align="left">Project Name</TableCell>
+          <TableCell align="right">Entry Notes</TableCell>
             <TableCell align="right">Entry Type</TableCell>
             <TableCell align="right">Minutes</TableCell>
             <TableCell align="right">Words</TableCell>
             <TableCell align="right">Date</TableCell>
-            <TableCell align="right">Edit/Delete</TableCell>
+            <TableCell align="right">Edit</TableCell>
+            <TableCell align="right">Delete</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -22,8 +24,10 @@ const StatsDisplay = ({entriesData, selectEntry, deleteEntry}) => {
             <StatsTableRow 
             key={entryData['entry_id']}
             entryData={entryData}
-            selectEntry={selectEntry}
             deleteEntry={deleteEntry}
+            projectsData={projectsData}
+            entryTypes={entryTypes}
+            updateEntries={updateEntries}
             />
           ))}
         </TableBody>

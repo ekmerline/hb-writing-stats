@@ -1,4 +1,5 @@
 const {useEffect, useRef } = React;
+const {Box, Grid } = MaterialUI;
 
 const LineGraph = ({entriesData}) => {
 
@@ -105,12 +106,15 @@ const LineGraph = ({entriesData}) => {
       }, [entriesData]);
 
         return (
-            <div className="lineGraph-container">
-                <canvas
-                    id="myGraph"
-                    ref={chartRef}
-                />
-            </div>
+            <Grid item md={6} sm={12}>
+                <Box {...defaultBoxProps}>
+                    <canvas
+                        id="myGraph"
+                        ref={chartRef}
+                    />
+                </Box>
+            </Grid>
+
         )
 
 }

@@ -1,13 +1,15 @@
 const { useState } = React;
-const { useHistory } = ReactRouterDOM;
-const { TextField, Button  } = MaterialUI;
 
-const Register = ({verifyUser}) => {
-    let history = useHistory();
+const { TextField, Button, Box  } = MaterialUI;
+
+const LoginRegister = ({verifyUser}) => {
+
+    const [checkedRegister, setCheckedRegister] = useState(false);
+
     const [userData, setUserData] = useState({
         user_name: '',
         password: '',
-        email: '',
+        email: ''
     });
 
     const { user_name, password, email } = userData;
@@ -18,6 +20,34 @@ const Register = ({verifyUser}) => {
             ...userData,
             [name]: value
         })
+    };
+
+    const handleCheckedChange = event => {
+        setCheckedRegister(event.target.checked);
+      };
+
+    const loginUser = async () => {
+        const newUser = {
+            user_name: user_name,
+            password: password
+        }
+        fetch('http://localhost:5000/api/login', {
+        method: 'POST', 
+        headers: {
+        'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newUser),
+        })
+        .then(response => response.json())
+        .then(data => {
+            sessionStorage.setItem('user_id', data['data']['user_id']);
+            sessionStorage.setItem('user_name', data['data']['user_name']);
+            verifyUser();
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+        
     };
 
     const registerUser = async () => {
@@ -38,7 +68,6 @@ const Register = ({verifyUser}) => {
             sessionStorage.setItem('user_id', data['data']['user_id']);
             sessionStorage.setItem('user_name', data['data']['user_name']);
             verifyUser();
-            history.push('/');
         })
         .catch((error) => {
             console.error('Error:', error);
@@ -47,7 +76,8 @@ const Register = ({verifyUser}) => {
     };
 
     return (
-        <form>
+        <Box>
+            <Box>
             <TextField 
                 required 
                 name="user_name"
@@ -56,7 +86,9 @@ const Register = ({verifyUser}) => {
                 value={user_name} 
                 onChange={e => onChange(e)}
                 />
-            <TextField
+            </Box>
+        <Box>
+        <TextField
                 required
                 name="password"
                 label="Password"
@@ -65,20 +97,51 @@ const Register = ({verifyUser}) => {
                 value={password}
                 onChange={e => onChange(e)}
             />
-            <TextField 
-                required 
+        </Box>
+
+        <Box>
+            
+        <Checkbox
+            checked={checkedRegister}
+            onChange={e => handleCheckedChange(e)}
+            inputProps={{ 'aria-label': 'primary checkbox' }}
+            />
+            <label>New User?</label>
+        </Box>
+        {checkedRegister &&
+        <React.Fragment>
+        <Box>
+        <TextField
+                required
                 name="email"
-                label="Email" 
+                label="Email"
+                type="text"
                 placeholder="email"
-                value={email} 
+                value={email}
                 onChange={e => onChange(e)}
-                />
-            <Button 
+            />
+        </Box>
+        <Box>
+        <Button 
                 variant="contained" 
                 color="primary"
                 onClick={registerUser}>
                     Register
             </Button>
-        </form>
+        </Box>
+        </React.Fragment>
+        }
+        {!checkedRegister &&
+            <Box>
+
+<Button 
+        variant="contained" 
+        color="primary"
+        onClick={loginUser}>
+            Login
+    </Button>
+</Box>
+        }
+        </Box>
     )
 }
