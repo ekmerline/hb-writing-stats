@@ -1,8 +1,6 @@
 const { useState } = React;
-const { useHistory } = ReactRouterDOM;
 
-const CreateEntry = ({entryTypes, updateEntries, projectsData}) => {
-    let history = useHistory();
+const CreateEntry = ({entryTypes, updateEntries, projectsData, handlePanelChange}) => {
     const [entryData, setEntryData] = useState({
         entry_minutes: 0,
         entry_words: 0,
@@ -39,7 +37,7 @@ const CreateEntry = ({entryTypes, updateEntries, projectsData}) => {
         .then(response => response.json())
         .then(data => {
             updateEntries(data['data']);
-            history.push('/');
+            handlePanelChange(panels.PROJECTDATA);
         })
         .catch((error) => {
             console.error('Error:', error);

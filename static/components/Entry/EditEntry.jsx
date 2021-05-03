@@ -1,9 +1,7 @@
 const { useState } = React;
-const { useHistory } = ReactRouterDOM;
 const { TextField, Button, FormControl, InputLabel, Select, MenuItem  } = MaterialUI;
 
 const EditEntry = ({entryTypes, updateEntries, projectsData, currentEntry}) => {
-    let history = useHistory();
     const [entryData, setEntryData] = useState({
         entry_id: currentEntry['entry_id'],
         entry_minutes: currentEntry['entry_minutes'],
@@ -41,7 +39,6 @@ const EditEntry = ({entryTypes, updateEntries, projectsData, currentEntry}) => {
         .then(response => response.json())
         .then(data => {
             updateEntries(data['data']);
-            history.push('/');
         })
         .catch((error) => {
             console.error('Error:', error);

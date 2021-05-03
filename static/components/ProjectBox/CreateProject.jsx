@@ -1,8 +1,6 @@
 const { useState } = React;
-const { useHistory } = ReactRouterDOM;
 
-const CreateProject = ({projectTypes, updateProjectsData}) => {
-    let history = useHistory();
+const CreateProject = ({projectTypes, updateProjectsData, handlePanelChange}) => {
     const [projectData, setProjectData] = useState({
         project_name: '',
         project_description: '',
@@ -35,7 +33,7 @@ const CreateProject = ({projectTypes, updateProjectsData}) => {
         .then(response => response.json())
         .then(data => {
             updateProjectsData(data['data']);
-            history.push('/');
+            handlePanelChange(panels.PROJECTDATA);
         })
         .catch((error) => {
             console.error('Error:', error);

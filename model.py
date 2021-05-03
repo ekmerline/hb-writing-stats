@@ -40,6 +40,7 @@ class Project(db.Model):
             'project_id': self.project_id,
             'user_id': self.user_id,
             'project_type_id': self.project_type_id,
+            'project_type_name': self.project_type.project_type_name,
             'project_name': self.project_name,
             'project_description': self.project_description,
             'project_create_date': self.project_create_date

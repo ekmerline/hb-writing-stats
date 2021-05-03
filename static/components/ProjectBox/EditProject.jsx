@@ -1,8 +1,8 @@
 const { useState } = React;
-const { useHistory } = ReactRouterDOM;
 
-const EditProject = ({projectTypes, updateProjectsData, currentProject}) => {
-    let history = useHistory();
+
+const EditProject = ({projectTypes, updateProjectsData, currentProject, handlePanelChange}) => {
+
     const [projectData, setProjectData] = useState({
         project_id: currentProject['project_id'],
         project_name: currentProject['project_name'],
@@ -36,7 +36,7 @@ const EditProject = ({projectTypes, updateProjectsData, currentProject}) => {
         .then(response => response.json())
         .then(data => {
             updateProjectsData(data['data']);
-            history.push('/');
+            handlePanelChange(panels.PROJECTDATA);
         })
         .catch((error) => {
             console.error('Error:', error);
@@ -46,17 +46,16 @@ const EditProject = ({projectTypes, updateProjectsData, currentProject}) => {
 
     return (
         <Box>
-        <ProjectForm
-        onSubmit={updateProject}
-        project_name={project_name}
-        project_description={project_description}
-        project_type_id={project_type_id}
-        projectTypes={projectTypes}
-        onChange={onChange}
-        buttonText={"Save Edits"}
-        >
-        </ProjectForm>
+            <ProjectForm
+            onSubmit={updateProject}
+            project_name={project_name}
+            project_description={project_description}
+            project_type_id={project_type_id}
+            projectTypes={projectTypes}
+            onChange={onChange}
+            buttonText={"Save Edits"}
+            >
+            </ProjectForm>
         </Box>
-
     )
 }

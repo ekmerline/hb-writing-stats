@@ -1,23 +1,32 @@
 const { useState } = React;
-const {  Button, Menu } = MaterialUI;
+const {  Button, Menu, Box } = MaterialUI;
 
-const ProjectsMenuList = ({projectsData, handleToggle, selectProject, selectedProjectIDs, deleteProject}) => {
+const ProjectsMenuList = ({
+    projectsData, 
+    handleProjectsFilter, 
+    selectProject, 
+    selectedProjectIDs, 
+    currentProject
+}) => {
 
     const [anchorEl, setAnchorEl] = useState(null);
 
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
-      };
+    };
     
-      const handleClose = () => {
+    const handleClose = () => {
         setAnchorEl(null);
-      };
+    };
 
 
     return (
-    <div>
-        <Button aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick}>
-        Projects
+    <Box>
+        <Button 
+        aria-controls="simple-menu" 
+        aria-haspopup="true" 
+        onClick={handleClick}>
+        {currentProject['project_name']}
         </Button>
         <Menu
         id="simple-menu"
@@ -27,21 +36,20 @@ const ProjectsMenuList = ({projectsData, handleToggle, selectProject, selectedPr
         onClose={handleClose}
         >
             {projectsData.map((projectData) => (
-                <div
+                <Box
                 key={projectData['project_id']}
                 >
                     <ProjectMenuItem
                     selectedProjectIDs={selectedProjectIDs}
                     selectProject={selectProject}
-                    handleToggle={handleToggle}
+                    handleProjectsFilter={handleProjectsFilter}
                     projectData={projectData}
-                    deleteProject={deleteProject}
                     />
-                </div>
+                </Box>
 
                 ))}
         </Menu>
-    </div>
+    </Box>
     )
 }
 
