@@ -16,30 +16,6 @@ def index():
     """View index."""
     return render_template('index.html')
 
-@app.route('/login')
-def login_redirect():
-    """Redirect login"""
-    return redirect('/')
-
-@app.route('/new-entry')
-def new_entry_redirect():
-    """Redirect new entry"""
-    return redirect('/')
-
-@app.route('/new-project')
-def new_project_redirect():
-    """Redirect new project"""
-    return redirect('/')
-
-@app.route('/edit-project')
-def edit_project_redirect():
-    """Redirect edit project"""
-    return redirect('/')
-
-@app.route('/edit-entry')
-def edit_entry_redirect():
-    """Redirect edit entry"""
-    return redirect('/')
 ###  ENDPOINTS ####
 
 ### USER ###
@@ -65,7 +41,9 @@ def login_user():
 def register_user():
     """Registers a new user."""
     user_data = json.loads(request.data)
-    return jsonify(crud.create_user(user_data['user_name'], user_data['email'], user_data['password']))
+    new_user = crud.create_user(user_data['user_name'], user_data['email'], user_data['password'])
+    session['user_id'] = new_user['data']['user_id']
+    return jsonify(new_user)
 
 @app.route('/api/user/<user_id>', methods=['PUT'])
 def update_user(user_id):
@@ -81,17 +59,18 @@ def delete_user(user_id):
 
 ### PROJECT ###
 
-@app.route('/api/projects')
-def get_projects_by_user():
+@app.route('/api/projects/<user_id>')
+def get_projects_by_user(user_id):
     """Gets list of projects for the logged in user."""
-    return jsonify(crud.get_projects_by_user_id(session['user_id']))
+    #return jsonify(crud.get_projects_by_user_id(session['user_id']))
+    return jsonify(crud.get_projects_by_user_id(user_id))
 
-@app.route('/api/project', methods=['POST'])
-def add_project():
+@app.route('/api/project/<user_id>', methods=['POST'])
+def add_project(user_id):
     """Creates a new project."""
     project_data = json.loads(request.data)
-    user = crud.get_user_by_id(session['user_id'])
-    #user = crud.get_user_by_id(user_id)
+    #user = crud.get_user_by_id(session['user_id'])
+    user = crud.get_user_by_id(user_id)
     project_type = crud.get_project_type_by_id(project_data['project_type_id'])
     if user and project_type:
         project = crud.create_project(user=user, 

@@ -22,8 +22,7 @@ def get_users():
 
 def get_user_by_id(user_id):
     try:
-        user = User.query.get(user_id)
-        {"message": "succcess", "data": user.to_dict()}
+        return User.query.get(user_id)
     except SQLAlchemyError as e:
         return {"message": "error", "data": {"exception": str(e)}}
 
@@ -86,13 +85,17 @@ def get_project_by_id(project_id):
 
 def get_projects_by_user_id(user_id):
     try:
-        projects = Project.query.filter(Project.user_id == user_id).all()
+        projects = Project.query.filter(Project.user_id == user_id).order_by(Project.project_create_date.desc()).all()
         latest_entry = Entry.query.filter(Entry.project.has(user_id = user_id)).order_by(Entry.entry_datetime.desc()).first()
         projects_list = []
-        for project in projects:
-            if project.project_id == latest_entry.project_id:
-                projects_list.insert(0, project.to_dict())
-            else:
+        if latest_entry:
+            for project in projects:
+                if project.project_id == latest_entry.project_id:
+                    projects_list.insert(0, project.to_dict())
+                else:
+                    projects_list.append(project.to_dict())
+        else:
+            for project in projects:
                 projects_list.append(project.to_dict())
         return projects_list
     except SQLAlchemyError as e:
@@ -112,11 +115,13 @@ def update_project(project_id, new_data):
 def delete_project(project_id):
     try:
         project = Project.query.get(project_id)
-        for entry in project.entries:
+        project_dict = project.to_dict()
+        entries = Entry.query.filter_by(project_id=project_id).all()
+        for entry in entries:
             db.session.delete(entry)
         db.session.delete(project)
         db.session.commit()
-        return {"message": "succcess", "data": project.to_dict()}
+        return {"message": "succcess", "data": project_dict}
     except SQLAlchemyError as e:
         db.session.rollback()
         logger.error(f"Delete project failed. Exception: {e}")
@@ -142,7 +147,7 @@ def get_entries_by_user_id(user_id):
 
 def create_entry(project_id, entry_type_id, entry_words, entry_minutes, entry_note, entry_datetime):
     try:
-        project = get_project_by_id(project_id)
+        project = Project.query.get(project_id)
         entry_type = get_entry_type_by_id(entry_type_id)
         entry = Entry(project=project,
                     entry_type=entry_type,
@@ -172,9 +177,10 @@ def update_entry(entry_id, new_data):
 def delete_entry(entry_id):
     try:
         entry = Entry.query.get(entry_id)
+        entry_dict = entry.to_dict()
         db.session.delete(entry)
         db.session.commit()
-        return {"message": "success", "data": entry.to_dict()}
+        return {"message": "success", "data": entry_dict}
     except SQLAlchemyError as e:
         db.session.rollback()
         logger.error(f'Delete failed. Exception: {e}')

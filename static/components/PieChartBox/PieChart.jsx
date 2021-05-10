@@ -1,12 +1,25 @@
 const {useEffect, useRef } = React;
-const {Box, Grid } = MaterialUI;
+const {Box, Grid, Paper } = MaterialUI;
 
-const PieChart = ({data, labels}) => {
+const PieChart = ({entriesData}) => {
+
+    const classes = useStyles();
 
     const chartRef = useRef(null);
     let myPieChart;
 
     useEffect(() => {
+
+        const pieChartData = entriesData.reduce((acc, entry) => {
+                if(acc[entry['entry_type_name']] !== undefined){
+                    acc[entry['entry_type_name']] += entry['entry_minutes'];
+                }else {
+                    acc[entry['entry_type_name']] = entry['entry_minutes'];
+                }
+                return acc;
+            }, {});
+
+        
         const canvas = chartRef.current;
         const myChartRef = canvas.getContext("2d");
 
@@ -14,7 +27,7 @@ const PieChart = ({data, labels}) => {
             type: "pie",
             data: {
                 //Bring in data
-                labels: labels,
+                labels: Object.keys(pieChartData),
                 datasets: [
                     {
                         label: "Entry Type Minutes",
@@ -29,12 +42,13 @@ const PieChart = ({data, labels}) => {
                         '#666ad1',
         
                         ],
-                        data: data,
+                        data: Object.values(pieChartData),
                     }
                 ]
             },
             options: {
-                //Customize chart options
+                responsive: true,
+                maintainAspectRatio: false,
             }
         });
         return () => {
@@ -42,18 +56,17 @@ const PieChart = ({data, labels}) => {
                 myPieChart.destroy();
             }
         }
-      }, [data, labels]);
+      }, [entriesData]);
 
         return (
-            <Grid item md={6} sm={12}>
-                <Box display="flex" {...defaultBoxProps}>
-                    <Box>
+            <Grid item md={4} sm={12}>
+                <Paper display="flex" elevation={3} className={`${classes.pieBox} ${classes.root}`}>
                         <canvas
                             id="myChart"
                             ref={chartRef}
                         />
-                    </Box>
-                </Box>
+
+                </Paper>
             </Grid>
 
         )

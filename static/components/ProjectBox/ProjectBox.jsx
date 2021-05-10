@@ -1,4 +1,4 @@
-const { Box, Button, Menu, MenuItem, Grid } = MaterialUI;
+const { Box, Button, Menu, MenuItem, Grid, Paper } = MaterialUI;
 const { useState } = React;
 
 
@@ -13,9 +13,12 @@ const ProjectBox = ({
     handleProjectsFilter,
     selectProject,
     selectedProjectIDs,
-    deleteProject
+    deleteProject,
+    userID,
+    handleProjectsFillerAll
 }) => {
 
+    const classes = useStyles();
 
     const [ mainPanelDisplay, setMainPanelDisplay ] = useState(panels.PROJECTDATA);
 
@@ -29,11 +32,13 @@ const ProjectBox = ({
                 return (
                 <ProjectDataDisplay
                 currentProject={currentProject}
+                handlePanelChange={handlePanelChange}
                 />  
                 )
             case panels.CREATEPROJECT:
                 return (
                 <CreateProject
+                    userID={userID}
                     projectTypes={projectTypes}
                     updateProjectsData={addNewProject}
                     handlePanelChange={handlePanelChange}
@@ -55,13 +60,14 @@ const ProjectBox = ({
                 updateEntries={addNewEntry}
                 projectsData={projectsData}
                 handlePanelChange={handlePanelChange}
+                currentProject={currentProject}
                 />
                 )
             default:
                 return (
-                    <Box>
+                    <React.Fragment>
                         There was an error rendering this box.
-                    </Box>
+                    </React.Fragment>
                 )
         }
     }
@@ -69,9 +75,10 @@ const ProjectBox = ({
 
 
     return (
-        <Grid item md={6} sm={12}>
-            <Box {...defaultBoxProps}>
+        <Grid item md={3} sm={12}>
+            <Paper className={`${classes.projectBox} ${classes.root}`} elevation={3} >
                 <ProjectBoxTopBar
+                handleProjectsFillerAll={handleProjectsFillerAll}
                 projectsData={projectsData}
                 handleProjectsFilter={handleProjectsFilter}
                 selectProject={selectProject}
@@ -80,12 +87,10 @@ const ProjectBox = ({
                 deleteProject={deleteProject}
                 handlePanelChange={handlePanelChange}
                 />
+                <Box className={classes.projectBoxMiddle}>
                 {currentPanel()}
-                <Box>
-                    <Button onClick={()=>handlePanelChange(panels.CREATEPROJECT)}>New Project</Button>
-                    <Button onClick={()=>handlePanelChange(panels.CREATEENTRY)}>New Entry</Button>
                 </Box>
-            </Box>
+            </Paper>
         </Grid>
 
     )

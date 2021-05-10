@@ -5,21 +5,8 @@ const StatsTableRow = ({entryData, deleteEntry, projectsData, entryTypes, update
 
   const [ editDisplay, setEditDisplay ] = useState(false);
 
-    const handleDeleteClick = () => {
-      fetch(`http://localhost:5000/api/entry/${entryData['entry_id']}`, {
-          method: 'DELETE'
-          })
-          .then(response => response.json())
-          .then(data => {
-              deleteEntry(data['data']);
-          })
-          .catch((error) => {
-              console.error('Error:', error);
-          });;
-  }
-
-  const handleEditDisplay = displayBool => {
-    setEditDisplay(displayBool);
+  const handleEditDisplay = () => {
+    setEditDisplay(!editDisplay);
   }
 
     return (
@@ -28,23 +15,18 @@ const StatsTableRow = ({entryData, deleteEntry, projectsData, entryTypes, update
               <EntryTableDisplayRow
               entryData={entryData}
               handleEditDisplay={handleEditDisplay}
+              deleteEntry={deleteEntry}
               />
               }
               {editDisplay &&
               <EntryTableEditRow
-              entryData={entryData}
+              currentEntry={entryData}
               projectsData={projectsData}
               entryTypes={entryTypes}
               updateEntries={updateEntries}
               handleEditDisplay={handleEditDisplay}
               />
               }
-              <TableCell align="right">
-                <Button
-                onClick={handleDeleteClick}>
-                Del
-                </Button>
-              </TableCell>
         </TableRow>
     )
 };

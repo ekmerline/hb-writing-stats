@@ -1,6 +1,6 @@
 const { useState } = React;
 
-const CreateProject = ({projectTypes, updateProjectsData, handlePanelChange}) => {
+const CreateProject = ({projectTypes, updateProjectsData, handlePanelChange, userID}) => {
     const [projectData, setProjectData] = useState({
         project_name: '',
         project_description: '',
@@ -23,7 +23,7 @@ const CreateProject = ({projectTypes, updateProjectsData, handlePanelChange}) =>
             project_description: project_description,
             project_type_id: project_type_id
         }
-        fetch('http://localhost:5000/api/project', {
+        fetch(`http://localhost:5000/api/project/${userID}`, {
         method: 'POST', 
         headers: {
         'Content-Type': 'application/json',
@@ -50,7 +50,6 @@ const CreateProject = ({projectTypes, updateProjectsData, handlePanelChange}) =>
         projectTypes={projectTypes}
         onChange={onChange}
         buttonText={"Create Project"}
-        >
-        </ProjectForm>
+        />
     )
 }

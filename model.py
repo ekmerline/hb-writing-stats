@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 import uuid
 
 db = SQLAlchemy()
-
+db.session.expire_on_commit = False
 
 class User(db.Model):
 

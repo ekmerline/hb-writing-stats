@@ -20,7 +20,7 @@ const EditProject = ({projectTypes, updateProjectsData, currentProject, handlePa
         })
     };
 
-    const updateProject = async () => {
+    const updateProject = () => {
         const newProject = {
             project_name: project_name,
             project_description: project_description,
@@ -45,7 +45,6 @@ const EditProject = ({projectTypes, updateProjectsData, currentProject, handlePa
     };
 
     return (
-        <Box>
             <ProjectForm
             onSubmit={updateProject}
             project_name={project_name}
@@ -54,8 +53,6 @@ const EditProject = ({projectTypes, updateProjectsData, currentProject, handlePa
             projectTypes={projectTypes}
             onChange={onChange}
             buttonText={"Save Edits"}
-            >
-            </ProjectForm>
-        </Box>
+            />
     )
 }

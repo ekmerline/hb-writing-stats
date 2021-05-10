@@ -1,6 +1,6 @@
-const { Grid, AppBar, Toolbar, Box, Typography, Checkbox, List, ListItem, ListItemIcon, ListItemSecondaryAction, ListItemText, IconButton, Button, Menu, MenuItem, Tab, Tabs, Link } = MaterialUI;
+const { ThemeProvider, Grid, AppBar, Toolbar, Box, Typography, Checkbox, List, ListItem, ListItemIcon, ListItemSecondaryAction, ListItemText, IconButton, Button, Menu, MenuItem, Tab, Tabs, Link } = MaterialUI;
 const { BrowserRouter, Switch, Route } = ReactRouterDOM;
-const { useState } = React;
+const { useState, useEffect } = React;
 
 const App = () => {
 
@@ -10,31 +10,23 @@ const App = () => {
     const [entryTypes, setEntryTypes] = useState([]);
     const [entriesData, setEntriesData] = useState([]);
     const [filteredEntriesData, setFilteredEntriesData] = useState([]);
-    const [currentProject, setCurrentProject] = useState({});
+    const [currentProject, setCurrentProject] = useState('');
     const [selectedProjectIDs, setSelectedProjectIDs] = useState(new Set());
-    const [pieData, setPieData] = useState({});
-
-    const filterChartData = chartEntriesData => {
-        return chartEntriesData.reduce((acc, entry) => {
-            if(acc[entry['entry_type_name']] !== undefined){
-                acc[entry['entry_type_name']] += entry['entry_minutes'];
-            }else {
-                acc[entry['entry_type_name']] = entry['entry_minutes'];
-            }
-            return acc;
-        }, {});
-    }
 
 
-    const loadData = () => {
-        fetch('http://localhost:5000/api/projects', {
+    const loadData = user_id => {
+        fetch(`http://localhost:5000/api/projects/${user_id}`, {
             method: 'GET'
             })
             .then(response => response.json())
             .then(data => {
                 setProjectsData(data);
                 //query should be sorted in a way first will always be most recent
-                setCurrentProject(data[0]);
+                if(data.length > 0 ){
+                    setCurrentProject(data[0]);
+                    const newSet = selectedProjectIDs.add(data[0]['project_id']);
+                    setSelectedProjectIDs(newSet);
+                }
             })
             .catch((error) => {
                 console.error('Error:', error);
@@ -45,9 +37,14 @@ const App = () => {
             .then(response => response.json())
             .then(data => {
                 setEntriesData(data);
-                setFilteredEntriesData(data);
-                const newChartData = filterChartData(data);
-                setPieData(newChartData);
+                if (data.length > 0){
+                    const mostRecentProjectID = data[0]['project_id'];
+                    const filteredData = data.filter(entry => entry['project_id'] === mostRecentProjectID);
+                    setFilteredEntriesData(filteredData);
+                }else {
+                    setFilteredEntriesData(data);
+                }
+
             })
             .catch((error) => {
                 console.error('Error:', error);
@@ -73,13 +70,14 @@ const App = () => {
                 console.error('Error:', error);
             });
     }
-    const verifyUser = () => {
-        setUserID(sessionStorage.getItem('user_id'));
-        loadData();
+    const verifyUser = user_id => {
+        setUserID(user_id);
+        loadData(user_id);
+        
     }
 
     const addNewProject = newProject => {
-        setProjectsData([...projectsData, newProject]);
+        setProjectsData([newProject, ...projectsData]);
         setCurrentProject(newProject);
     }
 
@@ -93,6 +91,9 @@ const App = () => {
 
     const addNewEntry = newEntry => {
         setEntriesData([...entriesData, newEntry]);
+        if(selectedProjectIDs.has(newEntry['project_id'])){
+            setFilteredEntriesData([newEntry, ...filteredEntriesData]);
+        }
     }
 
     const updateEntriesData = newEntry => {
@@ -104,17 +105,31 @@ const App = () => {
         //if in current filter, add to that
         setFilteredEntriesData(newEntriesData);
         setEntriesData(newEntriesData);
+        
     }
 
     const deleteEntry = entryData => {
         const newEntriesData = entriesData.filter(entry => entry['entry_id'] !== entryData['entry_id']);
+        const newFilteredEntriesData = filteredEntriesData.filter(entry => entry['entry_id'] !== entryData['entry_id'])
         setEntriesData(newEntriesData);
+        setFilteredEntriesData(newFilteredEntriesData);
     }
     const deleteProject = projectData => {
         const newProjectsData = projectsData.filter(project => project['project_id'] !== projectData['project_id']);
         setProjectsData(newProjectsData);
         const newEntriesData = entriesData.filter(entry => entry['project_id'] !== projectData['project_id']);
         setEntriesData(newEntriesData);
+
+        const newFilteredEntriesData = filteredEntriesData.filter(entry => entry['project_id'] !== projectData['project_id']);
+        setFilteredEntriesData(newFilteredEntriesData);
+
+        setCurrentProject(newProjectsData[0]);
+
+        if(selectedProjectIDs.has(projectData['project_id'])){
+            const newSet = new Set(selectedProjectIDs);
+            newSet.delete(projectData['project_id']);
+            setSelectedProjectIDs(newSet);
+        }
     }
 
     const handleProjectsFilter = projectID => {
@@ -129,13 +144,24 @@ const App = () => {
         }
         if(newSet.size === 0){
             setFilteredEntriesData(entriesData);
-            const newChartData = filterChartData(entriesData);
-            setPieData(newChartData);
         }else {
             const newFilteredEntries = entriesData.filter(entryData => newSet.has(entryData['project_id']));
             setFilteredEntriesData(newFilteredEntries);
-            const newChartData = filterChartData(newFilteredEntries);
-            setPieData(newChartData);
+        }
+    }
+
+    const handleProjectsFillerAll = all => {
+        if(all){
+            const newSet = new Set();
+            for(const project of projectsData){
+                newSet.add(project['project_id']);
+            }
+            setSelectedProjectIDs(newSet);
+            setFilteredEntriesData(entriesData);
+        }else {
+            setSelectedProjectIDs(new Set());
+            const newFilteredEntriesData = entriesData.filter(entry => entry['project_id'] === currentProject['project_id']);
+            setFilteredEntriesData(newFilteredEntriesData);
         }
     }
 
@@ -146,30 +172,39 @@ const App = () => {
     const logout = () => {
         sessionStorage.clear();
         setUserID(null);
+        setProjectsData([]);
+        setProjectTypes([]);
+        setEntryTypes([]);
+        setEntriesData([]);
+        setFilteredEntriesData([]);
+        setCurrentProject({});
+        setSelectedProjectIDs(new Set());    
     }
 
 
     return (
-            <Box className="App">
-                <AppBar position="static" color="secondary">
+        <ThemeProvider theme={theme}>
+            <Box className="App" height="100vh">
+                <AppBar position="static" color="primary" height="10vh">
                     <Toolbar>
                         {userID ? (
                             <React.Fragment>
-                            Welcome to the Writing Stats Tracker!
+                                <Box flexGrow={1} component="span">Welcome, {sessionStorage.getItem('user_name')}</Box>
+                                <Button onClick={logout} color="inherit">Log out</Button>
                             </React.Fragment>
                         ) : (
                             <React.Fragment>
-                                <Button onClick={logout}>Log out</Button>
+                            Welcome to the Writing Stats Tracker!
                             </React.Fragment>
                         )}
                     </Toolbar>
                 </AppBar>
-                <Box className="main">
-                            <React.Fragment>
-                                <Box>
+                <Box className="main" bgcolor="secondary.dark" height="100%" m={0}>
                                     {userID ? (
-                                        <Grid container spacing={2}>
+                                        <Grid container spacing={2} bgcolor="secondary.dark">
                                             <ProjectBox
+                                            handleProjectsFillerAll={handleProjectsFillerAll}
+                                            userID={userID}
                                             projectsData={projectsData}
                                             currentProject={currentProject}
                                             updateProject={updateProject}
@@ -183,8 +218,10 @@ const App = () => {
                                             deleteProject={deleteProject}
                                             />
                                             <PieChart 
-                                            labels={Object.keys(pieData)}
-                                            data={Object.values(pieData)}
+                                            entriesData={filteredEntriesData}
+                                            />
+                                            <LineGraph
+                                            entriesData={filteredEntriesData}
                                             />
                                             <EntryTableBox
                                             entriesData={filteredEntriesData}
@@ -193,19 +230,21 @@ const App = () => {
                                             entryTypes={entryTypes}
                                             updateEntries={updateEntriesData}
                                             />
-                                            <LineGraph
-                                            entriesData={filteredEntriesData}
-                                            />
                                         </Grid>
                                     ) : (
-                                    <Box>
+                                    <Box   
+                                    display="flex" 
+                                    justifyContent="center" 
+                                    style={{backgroundImage: `url(${"http://localhost:5000/static/images/typewriterfade2.jpeg"})`, 
+                                    height: "100vh", 
+                                    width: "100vw", 
+                                    position: "fixed"}}>
                                         <LoginRegister verifyUser={verifyUser}/>
                                     </Box>
                                     )}
-                                </Box>
-                            </React.Fragment>
                 </Box>
             </Box>
+        </ThemeProvider>
 
     )
 }

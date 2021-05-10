@@ -3,8 +3,8 @@ const { TextField, Button, FormControl, InputLabel, Select, MenuItem, Box  } = M
 const ProjectForm = ({onSubmit, project_name, project_description, project_type_id, projectTypes, onChange, buttonText}) => {
 
     return (
-        <form>
-            <div>
+        <React.Fragment>
+            <Box>
                 <TextField 
                     required 
                     name="project_name"
@@ -13,8 +13,8 @@ const ProjectForm = ({onSubmit, project_name, project_description, project_type_
                     value={project_name} 
                     onChange={e => onChange(e)}
                 />
-            </div>
-            <div>
+            </Box>
+            <Box>
                 <TextField
                     required
                     multiline
@@ -25,8 +25,8 @@ const ProjectForm = ({onSubmit, project_name, project_description, project_type_
                     value={project_description}
                     onChange={e => onChange(e)}
                 />
-            </div>
-            <div>
+            </Box>
+            <Box>
                 <FormControl style={{minWidth: 200}}>
                     <InputLabel id="project-type-label">Project Type</InputLabel>
                     <Select
@@ -44,16 +44,15 @@ const ProjectForm = ({onSubmit, project_name, project_description, project_type_
                     )}
                     </Select>
                 </FormControl>
-            </div>
-            <div>
+            </Box>
+            <Box>
                 <Button 
                     variant="contained" 
                     color="primary"
                     onClick={onSubmit}>
-                       {buttonText}
+                    {buttonText}
                 </Button>
-            </div>
-
-        </form>
+            </Box>
+        </React.Fragment>
     )
 }

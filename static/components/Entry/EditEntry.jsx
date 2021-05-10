@@ -58,7 +58,6 @@ const EditEntry = ({entryTypes, updateEntries, projectsData, currentEntry}) => {
        entry_note={entry_note}
        project_id={project_id}
        buttonText={"Edit Entry"}
-       >
-       </EntryForm>
+       />
     )
 }
