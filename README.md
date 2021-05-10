@@ -21,8 +21,6 @@ Even if you love writing, making it a consistent habit can be a slog. It's easy 
 
 After a user signs in, the user's data is loaded to generate a dynamic dashboard using React. The dashboard displays the most recent project and the details about it, a pie chart showing the breakdown of progress between editing, planning, and writing, a line graph showing progress over time, and a detailed table of entries. 
 
-![alt text](https://github.com/mearajennifer/jobtracker/blob/master/static/img/active-jobs.png "JobTracker active jobs dashboard")
-
 #### Dynamic Filtering
 Once on the dashboard, a user can use the dropdown in the project box to decide what data they want to display, whether it's all projects, one project, or a particular combination. As all the relevant data is loaded and managed using React state, there are no server calls needed for filtering, so all updates are quick and involve no page reloading.
 
