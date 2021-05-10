@@ -1,12 +1,12 @@
 const { useState } = React;
 
-const CreateEntry = ({entryTypes, updateEntries, projectsData, handlePanelChange}) => {
+const CreateEntry = ({entryTypes, updateEntries, projectsData, handlePanelChange, currentProject}) => {
     const [entryData, setEntryData] = useState({
         entry_minutes: 0,
         entry_words: 0,
         entry_type_id: '',
         entry_note: '',
-        project_id: ''
+        project_id: currentProject['project_id']
     });
 
     const { entry_minutes, entry_words, entry_type_id, entry_note, project_id} = entryData;
@@ -56,8 +56,7 @@ const CreateEntry = ({entryTypes, updateEntries, projectsData, handlePanelChange
        entry_type_id={entry_type_id}
        entry_note={entry_note}
        project_id={project_id}
-       buttonText={"Create Project"}
-       >
-       </EntryForm>
+       buttonText={"Create Entry"}
+       />
     )
 }

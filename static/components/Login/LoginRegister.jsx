@@ -1,8 +1,10 @@
 const { useState } = React;
 
-const { TextField, Button, Box  } = MaterialUI;
+const { TextField, Button, Box, Paper  } = MaterialUI;
 
 const LoginRegister = ({verifyUser}) => {
+
+    const classes = useStyles();
 
     const [checkedRegister, setCheckedRegister] = useState(false);
 
@@ -26,7 +28,7 @@ const LoginRegister = ({verifyUser}) => {
         setCheckedRegister(event.target.checked);
       };
 
-    const loginUser = async () => {
+    const loginUser = () => {
         const newUser = {
             user_name: user_name,
             password: password
@@ -40,9 +42,9 @@ const LoginRegister = ({verifyUser}) => {
         })
         .then(response => response.json())
         .then(data => {
-            sessionStorage.setItem('user_id', data['data']['user_id']);
+            //sessionStorage.setItem('user_id', data['data']['user_id']);
             sessionStorage.setItem('user_name', data['data']['user_name']);
-            verifyUser();
+            verifyUser(data['data']['user_id']);
         })
         .catch((error) => {
             console.error('Error:', error);
@@ -76,42 +78,37 @@ const LoginRegister = ({verifyUser}) => {
     };
 
     return (
-        <Box>
+        <Paper className={classes.loginBox} elevation={3} >
+            <Box display="flex" justifyContent="center">
+
             <Box>
-            <TextField 
-                required 
-                name="user_name"
-                label="Username" 
-                placeholder="username"
-                value={user_name} 
-                onChange={e => onChange(e)}
+
+            
+            <Box>
+                <TextField 
+                    required 
+                    name="user_name"
+                    label="Username" 
+                    placeholder="username"
+                    value={user_name} 
+                    onChange={e => onChange(e)}
                 />
             </Box>
-        <Box>
-        <TextField
-                required
-                name="password"
-                label="Password"
-                type="password"
-                placeholder="password"
-                value={password}
-                onChange={e => onChange(e)}
-            />
-        </Box>
-
-        <Box>
-            
-        <Checkbox
-            checked={checkedRegister}
-            onChange={e => handleCheckedChange(e)}
-            inputProps={{ 'aria-label': 'primary checkbox' }}
-            />
-            <label>New User?</label>
-        </Box>
-        {checkedRegister &&
+            <Box>
+                <TextField
+                        required
+                        name="password"
+                        label="Password"
+                        type="password"
+                        placeholder="password"
+                        value={password}
+                        onChange={e => onChange(e)}
+                    />
+            </Box>
+            {checkedRegister &&
         <React.Fragment>
-        <Box>
-        <TextField
+            <Box>
+                <TextField
                 required
                 name="email"
                 label="Email"
@@ -119,29 +116,42 @@ const LoginRegister = ({verifyUser}) => {
                 placeholder="email"
                 value={email}
                 onChange={e => onChange(e)}
-            />
-        </Box>
-        <Box>
-        <Button 
+                    />
+            </Box>
+            </React.Fragment>}
+            <Box>
+                <Checkbox
+                checked={checkedRegister}
+                onChange={e => handleCheckedChange(e)}
+                inputProps={{ 'aria-label': 'primary checkbox' }}
+                />
+                <label>New User?</label>
+            </Box>
+
+        {checkedRegister &&
+        <React.Fragment>
+            <Box>
+                <Button 
+                className={classes.buttonStyles}
                 variant="contained" 
                 color="primary"
                 onClick={registerUser}>
-                    Register
-            </Button>
-        </Box>
-        </React.Fragment>
-        }
+                Register
+                </Button>
+            </Box>
+        </React.Fragment>}
         {!checkedRegister &&
-            <Box>
-
-<Button 
-        variant="contained" 
-        color="primary"
-        onClick={loginUser}>
-            Login
-    </Button>
-</Box>
-        }
+        <Box>
+            <Button
+            className={classes.buttonStyles} 
+            variant="contained" 
+            color="primary"
+            onClick={loginUser}>
+                Login
+            </Button>
+        </Box>}
         </Box>
+        </Box>
+        </Paper>
     )
 }

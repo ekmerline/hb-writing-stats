@@ -1,7 +1,12 @@
 const { TableRow, TableCell } = MaterialUI;
 
 
-const EntryTableDisplayRow = ({entryData, handleEditDisplay}) => {
+const EntryTableDisplayRow = ({entryData, handleEditDisplay, deleteEntry}) => {
+
+    const deleteURL = `http://localhost:5000/api/entry/${entryData['entry_id']}`;
+
+    const deleteDialogText = `Are you sure you want to delete this entry?`;
+
 
     return (
             <React.Fragment>
@@ -14,10 +19,12 @@ const EntryTableDisplayRow = ({entryData, handleEditDisplay}) => {
                 <TableCell align="right">{entryData['entry_words']}</TableCell>
                 <TableCell align="right">{entryData['entry_datetime']}</TableCell>
                 <TableCell align="right">
-                <Button
-                onClick={() => handleEditDisplay(true)}>
-                Edit
-                </Button>
+                <EditDeleteButtons
+                deleteItem={deleteEntry}
+                handleEditClick={handleEditDisplay}
+                deleteDialogText={deleteDialogText}
+                deleteURL={deleteURL}
+                />
               </TableCell>
             </React.Fragment>
     )

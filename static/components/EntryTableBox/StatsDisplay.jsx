@@ -3,23 +3,22 @@ const { TableContainer, Table, TableHead, TableBody, TableRow, TableCell, Button
 
 const StatsDisplay = ({entriesData, deleteEntry, projectsData, entryTypes, updateEntries}) => {
 
-  
+  const classes = useStyles();
     return (
-    <TableContainer>
-      <Table aria-label="entry stats table">
-        <TableHead>
+    <TableContainer className={classes.entryTable}>
+      <Table aria-label="entry stats table" stickyHeader>
+        <TableHead className={classes.entryTableHead}>
           <TableRow>
-          <TableCell align="left">Project Name</TableCell>
-          <TableCell align="right">Entry Notes</TableCell>
-            <TableCell align="right">Entry Type</TableCell>
-            <TableCell align="right">Minutes</TableCell>
-            <TableCell align="right">Words</TableCell>
-            <TableCell align="right">Date</TableCell>
-            <TableCell align="right">Edit</TableCell>
-            <TableCell align="right">Delete</TableCell>
+          <TableCell align="left" className={classes.entryTableHead}>Project Name</TableCell>
+          <TableCell align="right" className={classes.entryTableHead}>Entry Notes</TableCell>
+            <TableCell align="right" className={classes.entryTableHead}>Entry Type</TableCell>
+            <TableCell align="right" className={classes.entryTableHead}>Minutes</TableCell>
+            <TableCell align="right" className={classes.entryTableHead}>Words</TableCell>
+            <TableCell align="right" className={classes.entryTableHead}>Date</TableCell>
+            <TableCell align="right" className={classes.entryTableHead}></TableCell>
           </TableRow>
         </TableHead>
-        <TableBody>
+        <TableBody className={classes.entryTableData}>
           {entriesData.map(entryData => (
             <StatsTableRow 
             key={entryData['entry_id']}
